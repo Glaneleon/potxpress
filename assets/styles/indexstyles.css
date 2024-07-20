@@ -1,0 +1,81 @@
+
+        body {
+            font-family: 'Dosis', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5 !important;
+            color: #574138;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a:hover {
+            text-decoration: none !important;
+            color: #161616 !important;
+        }
+
+        .container-fluid {
+            padding: 20px;
+            flex: 1;
+        }
+
+        #product-list-container {
+            display: flex;
+            flex-wrap: wrap;
+            overflow-y: auto;
+            flex: 1;
+          }
+          
+          /* Optional: Adjust the width on smaller screens */
+          @media (max-width: 768px) {
+            #product-list-container {
+              width: 80%; /* Adjust the width for screens up to 768 pixels wide */
+            }
+          }
+          
+          /* Optional: Further adjust the width on even smaller screens */
+          @media (max-width: 480px) {
+            #product-list-container {
+              width: 60%; /* Adjust the width for screens up to 480 pixels wide */
+            }
+          }
+          
+
+
+        .product-card {
+            width: 250px;
+            height: 300px;
+            margin: 5px;
+            padding: 5px;
+            border: 1px solid #d6eff7;
+            background-color: #fff;
+            text-align: center;
+        }
+
+        .product-card-img {
+            max-height: 286px; 
+            object-fit: contain;
+        }
+
+        .product-desc {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 10px;
+            background-color: white;
+        }
+
+        .sidebar {
+            border-right: 1px solid #ddd;
+            padding: 15px;
+            position: sticky;
+            top: 0;
+        }
+
+        .text-orange{
+            color: #c85f09;
+        }
+

@@ -1,0 +1,215 @@
+<?php
+session_start();
+include('config/config.php');
+include('config/filter_products.php');
+
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PotXpress - Pot Supplier Manila</title>
+    <link rel="icon" href="assets/images/potsuppliermanila.jpg" type="image/icon type">
+    <link rel="stylesheet" href="assets/styles/indexstyles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dosis:wght@400;500;700&display=swap">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</head>
+<body>
+
+    <!-- navbar -->
+    <?php include 'config/header.php';?>
+
+    <div class="container-fluid">
+        <div class="row mb-5"> 
+            <!-- sidebar -->
+            <div class="col-md-3 sidebar" id="sidebar">
+                <form id="filterForm">
+                    <div class="form-group ">
+                        <input type="text" class="form-control" placeholder="Search" name="searchTerm">
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label>Filters:</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="inStock" id="allFilter" value="1" checked>
+                            <label class="form-check-label" for="allFilter">
+                                All
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="inStock" id="inStockFilter" value="2">
+                            <label class="form-check-label" for="inStockFilter">
+                                In Stock
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="inStock" id="outOfStockFilter" value="3">
+                            <label class="form-check-label" for="outOfStockFilter">
+                                Out of Stock
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <div class="form-group mt-3">
+                        <label for="sorting">Sort By:</label>
+                        <select class="form-control" id="sorting" name="sortByPrice">
+                            <option value="priceLowToHigh">Price: Low to High</option>
+                            <option value="priceHighToLow">Price: High to Low</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">Apply Filters</button>
+                </form>
+            </div>
+
+            <!-- product list container -->
+            <div class="col-md-9 mx-auto" id="product-list-container">
+                <?php
+                $allProducts = getAllProducts();
+
+                if ($allProducts) {
+                    foreach ($allProducts as $product) {
+                            echo '<a href="product.php?id=' . $product['product_id'] . '" class="product-link text-decoration-none">';
+                            echo '<div class="col-sm-3 card mx-2 mt-3" style="width: 18rem;">';
+                            echo '<img class="product-card-img" src="'.$product['imagefilepath'].'">';
+                            echo '<div class="card-body border-top">';
+                            echo '<p class="card-text text-dark">' . $product['name'] . '</p>';
+                            echo '<h4 class="card-title text-orange">₱ ' . $product['price'] . '</h4>';
+                            echo '</div>';
+                            echo '</div>';
+                            echo '</a>';
+                    }
+                } else {
+                    echo 'No products found';
+                }
+                ?>
+            </div>
+        </div>
+    </div>
+
+    <?php include 'config/footer.php';?>
+
+    <script>
+        // JavaScript functions go here
+        function redirectToProductPage(productId) {
+            // Redirect to the product page with specific details
+            window.location.href = 'product.php?id=' + productId;
+        }
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#filterForm').submit(function (e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    type: 'POST',
+                    url: 'config/filter_products.php',
+                    data: formData,
+                    success: function (data) {
+                        $('#product-list-container').html(data);
+                        Swal.fire({
+                            position: "top-end",
+                            icon: 'success',
+                            title: 'Done!',
+                            text: 'Filtered products.',
+                            showConfirmButton: false,
+                            timer: 1200
+                        });
+                    },
+                    error: function () {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Error fetching filtered products',
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+    $(document).ready(function(){
+        $("#logout").on("click", function(e){
+            e.preventDefault(); // Prevent the default behavior of the link
+        
+            // Make the AJAX call
+            $.ajax({
+                url: "config/logout.php",
+                type: "POST",
+                success: function(response){
+                    // If the logout was successful, show the SweetAlert2 notification
+                    Swal.fire({
+                        position: "top-end",
+                        icon: 'success',
+                        title: 'Done!',
+                        text: 'Logout Successful!',
+                        showConfirmButton: false,
+                        timer: 1200,
+                        didClose: () => {window.location.reload();}
+                    });
+                },
+                error: function(){
+                    // Handle errors if the AJAX call fails
+                    Swal.fire({
+                        position: "top-end",
+                        icon: 'error',
+                        title: 'Oops!',
+                        text: 'Something went wrong!',
+                        showConfirmButton: false,
+                        timer: 1200
+                    });
+                }
+            });
+        });
+    });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
+            var sidebar = document.getElementById('sidebar');   
+
+            // Initial check for the screen width
+            checkScreenWidth(); 
+
+            // Add event listener to the button
+            toggleSidebarBtn.addEventListener('click', function () {
+                toggleSidebar();
+            }); 
+
+            // Add event listener to window resize
+            window.addEventListener('resize', function () {
+                checkScreenWidth();
+            }); 
+
+            // Function to toggle the sidebar
+            function toggleSidebar() {
+                sidebar.classList.toggle('d-none');
+            }   
+
+            // Function to check the screen width and hide/show the sidebar
+            function checkScreenWidth() {
+                if (window.innerWidth < 992) {
+                    // If the screen width is less than 992 pixels (considered mobile), hide the sidebar by default
+                    sidebar.classList.add('d-none');
+                    toggleSidebarBtn.classList.remove('d-none'); // Show the toggle button
+                } else {
+                    // If the screen width is 992 pixels or more (considered desktop), show the sidebar and hide the toggle button
+                    sidebar.classList.remove('d-none');
+                    toggleSidebarBtn.classList.add('d-none');
+                }
+            }
+        });
+    </script>
+
+
+</body>
+</html>

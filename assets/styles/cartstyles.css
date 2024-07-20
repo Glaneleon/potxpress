@@ -1,0 +1,38 @@
+/* cartstyles.css */
+
+/* Add styles for the table and its elements */
+.table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Add styles for the product image in the cart */
+.cart-product-image {
+    width: 50px; /* Adjust the size as needed */
+    height: auto;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* Add styles for the container */
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+/* Add styles for the "Your Cart" heading */
+h2 {
+    color: #333;
+}
+
+/* Add styles for the "Your cart is empty" message */
+p {
+    color: #777;
+}
