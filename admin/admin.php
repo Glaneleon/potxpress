@@ -76,6 +76,10 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-file-pdf"></i></div>
                                 PDF Reports
                             </a>
+                            <a class="nav-link" aria-current="page" id="riders-tab" href="#riders">
+                                <div class="sb-nav-link-icon"><i class="fa-solid fa-motorcycle"></i></div>
+                                Delivery Riders
+                            </a>
                             <a id="logs" class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapsePages" aria-expanded="false" aria-controls="collapsePages">
                                 <div class="sb-nav-link-icon"><i class="fas fa-book-open"></i></div>
                                 Logs
@@ -213,6 +217,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                         require_once "accesslogs.php";
                         require_once "accounts.php";
                         require_once "pdf.php";
+                        require_once "riders.php";
                         ?>
 
                     </div>
@@ -245,6 +250,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
 
     <?php include "./adminconfig/adminscript.php"; ?>
+
     <script>
         $(document).ready(function() {
             $('#productstable').DataTable();

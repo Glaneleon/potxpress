@@ -1,22 +1,22 @@
     <!-- fragment url -->
     <script>
         function showDivBasedOnFragment() {
-          // Get the fragment identifier from the URL
-          var fragment = window.location.hash.substring(1);
+            // Get the fragment identifier from the URL
+            var fragment = window.location.hash.substring(1);
 
-          // Remove 'show' and 'active' classes from any element with class "tab-pane fade show active"
-          var activeDivs = document.querySelectorAll('.tab-pane.fade.show.active');
-          activeDivs.forEach(function(div) {
-            div.classList.remove('show', 'active');
-          });
-      
-          // Show the div with the corresponding ID
-          if (fragment) {
-            var targetDiv = document.getElementById(fragment);
-            if (targetDiv) {
-              targetDiv.classList.add('show', 'active');
+            // Remove 'show' and 'active' classes from any element with class "tab-pane fade show active"
+            var activeDivs = document.querySelectorAll('.tab-pane.fade.show.active');
+            activeDivs.forEach(function(div) {
+                div.classList.remove('show', 'active');
+            });
+
+            // Show the div with the corresponding ID
+            if (fragment) {
+                var targetDiv = document.getElementById(fragment);
+                if (targetDiv) {
+                    targetDiv.classList.add('show', 'active');
+                }
             }
-          }
         }
 
         // Call the function on page load
@@ -26,59 +26,59 @@
     <script>
         window.addEventListener('DOMContentLoaded', event => {
 
-        // Toggle the side navigation
-        const sidebarToggle = document.body.querySelector('#sidebarToggle');
-        if (sidebarToggle) {
-            // Uncomment Below to persist sidebar toggle between refreshes
-            // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
-            //     document.body.classList.toggle('sb-sidenav-toggled');
-            // }
-            sidebarToggle.addEventListener('click', event => {
-                event.preventDefault();
-                document.body.classList.toggle('sb-sidenav-toggled');
-                localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
-            });
-        }
+            // Toggle the side navigation
+            const sidebarToggle = document.body.querySelector('#sidebarToggle');
+            if (sidebarToggle) {
+                // Uncomment Below to persist sidebar toggle between refreshes
+                // if (localStorage.getItem('sb|sidebar-toggle') === 'true') {
+                //     document.body.classList.toggle('sb-sidenav-toggled');
+                // }
+                sidebarToggle.addEventListener('click', event => {
+                    event.preventDefault();
+                    document.body.classList.toggle('sb-sidenav-toggled');
+                    localStorage.setItem('sb|sidebar-toggle', document.body.classList.contains('sb-sidenav-toggled'));
+                });
+            }
 
         });
     </script>
     <!-- show/hide tab -->
     <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        // Get all the navigation links
-        var navLinks = document.querySelectorAll('.nav-link');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all the navigation links
+            var navLinks = document.querySelectorAll('.nav-link');
 
-        // Add click event listener to each navigation link
-        navLinks.forEach(function (link) {
-          link.addEventListener('click', function (event) {
-            if (this.id === 'logs' || this.id === 'navbarDropdown') {
-              // Do nothing and return from the event handler
-              return;
-            }
-            // Prevent the default link behavior
-            event.preventDefault();
+            // Add click event listener to each navigation link
+            navLinks.forEach(function(link) {
+                link.addEventListener('click', function(event) {
+                    if (this.id === 'logs' || this.id === 'navbarDropdown') {
+                        // Do nothing and return from the event handler
+                        return;
+                    }
+                    // Prevent the default link behavior
+                    event.preventDefault();
 
-            // Remove the "show active" class from all links and tab panes
-            navLinks.forEach(function (link) {
-              link.classList.remove('show', 'active');
+                    // Remove the "show active" class from all links and tab panes
+                    navLinks.forEach(function(link) {
+                        link.classList.remove('show', 'active');
+                    });
+
+                    // Add the "show active" class to the clicked link
+                    this.classList.add('show', 'active');
+
+                    // Get the target tab pane ID from the link's href attribute
+                    var targetTabPaneId = this.getAttribute('href').substring(1);
+
+                    // Remove the "show active" class from all tab panes
+                    var tabPanes = document.querySelectorAll('.tab-pane');
+                    tabPanes.forEach(function(pane) {
+                        pane.classList.remove('show', 'active');
+                    });
+
+                    // Add the "show active" class to the target tab pane
+                    document.getElementById(targetTabPaneId).classList.add('show', 'active');
+                });
             });
-
-            // Add the "show active" class to the clicked link
-            this.classList.add('show', 'active');
-
-            // Get the target tab pane ID from the link's href attribute
-            var targetTabPaneId = this.getAttribute('href').substring(1);
-
-            // Remove the "show active" class from all tab panes
-            var tabPanes = document.querySelectorAll('.tab-pane');
-            tabPanes.forEach(function (pane) {
-              pane.classList.remove('show', 'active');
-            });
-
-            // Add the "show active" class to the target tab pane
-            document.getElementById(targetTabPaneId).classList.add('show', 'active');
-          });
-        });
 
             // Set the dashboard tab as the default active tab
             var dashboardTab = document.getElementById('dashboard-tab');
@@ -86,19 +86,19 @@
 
             var dashboardTabPane = document.getElementById('dashboard');
             dashboardTabPane.classList.add('show', 'active');
-      });
+        });
     </script>
     <!-- product crud -->
     <script>
         $(document).ready(function() {
-        
-//CREATE
-            $('#addProductForm').submit(function (e) {
+
+            //CREATE
+            $('#addProductForm').submit(function(e) {
                 e.preventDefault();
-            
+
                 // Serialize form data
                 var formData = new FormData(this);
-            
+
                 // Make an AJAX request
                 console.log("Before AJAX request");
                 $.ajax({
@@ -107,7 +107,7 @@
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function (response) {
+                    success: function(response) {
                         console.log('Response from server:', response);
                         // Check the response from the server
                         if (response.success) {
@@ -117,9 +117,11 @@
                                 title: 'Product Added!',
                                 text: response.originalString + ' has been successfully added.',
                                 // text: 'The product has been successfully added.',
-                                didClose: () => {window.location.reload();}
+                                didClose: () => {
+                                    window.location.reload();
+                                }
                             });
-                        
+
                             // Optionally, close the modal or perform additional actions
                             $('#addProductModal').modal('hide');
                         } else {
@@ -131,7 +133,7 @@
                             });
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.error('Error:', error);
                         // Handle AJAX error
                         Swal.fire({
@@ -143,65 +145,67 @@
                 });
             });
 
-//UPDATE
-        $('form[id^="editProductForm"]').submit(function (e) {
-        e.preventDefault();
-        
-        // Extract product ID from the form's ID
-        var productID = this.id.replace('editProductForm', '');
+            //UPDATE
+            $('form[id^="editProductForm"]').submit(function(e) {
+                e.preventDefault();
 
-            // Serialize form data
-            var formData = new FormData(this);
-        
-            // Make an AJAX request
-            $.ajax({
-                type: 'POST',
-                url: './adminconfig/edit_product.php',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    // Handle the response from the server
-                    if (response.success) {
-                        $('#editProductModal' + productID).modal('hide');
-                       
-                    
-                        // Display SweetAlert2 success notification
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.data || 'Operation successful.',
-                            didClose: () => {window.location.reload();}
-                        });
-                    } else {
-                        // Handle the case where the operation failed
+                // Extract product ID from the form's ID
+                var productID = this.id.replace('editProductForm', '');
+
+                // Serialize form data
+                var formData = new FormData(this);
+
+                // Make an AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url: './adminconfig/edit_product.php',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.success) {
+                            $('#editProductModal' + productID).modal('hide');
+
+
+                            // Display SweetAlert2 success notification
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.data || 'Operation successful.',
+                                didClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+                        } else {
+                            // Handle the case where the operation failed
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || 'Failed to perform the operation. Please try again.',
+                            });
+                        }
+                    },
+                    error: function() {
+                        // Handle AJAX error
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.error || 'Failed to perform the operation. Please try again.',
+                            text: 'An error occurred. Please try again.',
                         });
                     }
-                },
-                error: function () {
-                    // Handle AJAX error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred. Please try again.',
-                    });
-                }
+                });
             });
         });
-    });
     </script>
     <script>
         //Delete
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Attach click event to delete buttons
-            $('#productstable').on('click', '[id^="deleteButton"]', function () {
+            $('#productstable').on('click', '[id^="deleteButton"]', function() {
                 // Extract the product ID from the button ID
                 var productID = this.id.replace('deleteButton', '');
-            
+
                 // Show the confirmation dialog
                 Swal.fire({
                     title: "Are you sure?",
@@ -217,9 +221,11 @@
                         $.ajax({
                             type: 'POST',
                             url: './adminconfig/delete_product.php',
-                            data: { productID: productID },
+                            data: {
+                                productID: productID
+                            },
                             dataType: 'json',
-                            success: function (response) {
+                            success: function(response) {
                                 // Handle the response from the server
                                 if (response.success) {
                                     // Show success message after deletion
@@ -240,7 +246,7 @@
                                     });
                                 }
                             },
-                            error: function () {
+                            error: function() {
                                 // Show error message for AJAX error
                                 Swal.fire({
                                     title: "Error",
@@ -256,69 +262,71 @@
     </script>
     <!-- add stock -->
     <script>
-        $(document).ready(function () {
+        $(document).ready(function() {
 
-        $('form[id^="addStockForm"]').submit(function (e) {
-            console.log("Add Stock Form submitted");
-        e.preventDefault();
-        
-        // Extract product ID from the form's ID
-        var productID = this.id.replace('addStockForm', '');
+            $('form[id^="addStockForm"]').submit(function(e) {
+                console.log("Add Stock Form submitted");
+                e.preventDefault();
 
-            // Serialize form data
-            var formData = new FormData(this);
+                // Extract product ID from the form's ID
+                var productID = this.id.replace('addStockForm', '');
 
-            $.ajax({
-                type: 'POST',
-                url: './adminconfig/add_stock.php',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (response) {
-                    // Handle the response from the server
-                    if (response.success) {
-                        $('#addStockModal' + productID).modal('hide');
-                    
-                        // Display SweetAlert2 success notification
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.data || 'Operation successful.',
-                            didClose: () => {window.location.reload();}
-                        });
-                    } else {
-                        // Handle the case where the operation failed
+                // Serialize form data
+                var formData = new FormData(this);
+
+                $.ajax({
+                    type: 'POST',
+                    url: './adminconfig/add_stock.php',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.success) {
+                            $('#addStockModal' + productID).modal('hide');
+
+                            // Display SweetAlert2 success notification
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.data || 'Operation successful.',
+                                didClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+                        } else {
+                            // Handle the case where the operation failed
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || 'Failed to perform the operation. Please try again.',
+                            });
+                        }
+                    },
+                    error: function() {
+                        // Handle AJAX error
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.error || 'Failed to perform the operation. Please try again.',
+                            text: 'An error occurred. Please try again.',
                         });
                     }
-                },
-                error: function () {
-                    // Handle AJAX error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred. Please try again.',
-                    });
-                }
+                });
             });
         });
-    });
     </script>
     <!-- notification  -->
     <script>
-        function productStockNotifications(){
+        function productStockNotifications() {
             $.ajax({
-            url: './adminconfig/productstockalert.php',
-            type: 'POST',
-            dataType: 'json',
-            success: function(response) {
-                $.each(response, function(index, data) {
-                    if (data.success) {
-                        if(data.stock == "0"){
-                            var toast = `
+                url: './adminconfig/productstockalert.php',
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $.each(response, function(index, data) {
+                        if (data.success) {
+                            if (data.stock == "0") {
+                                var toast = `
                                 <div id="toastnotif" class="position-fixed bottom-0 end-0 p-3" style="z-index: 12">
                                     <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-delay="10000">
                                         <div class="toast-header bg-danger">
@@ -333,8 +341,8 @@
                                     </div>
                                 </div>
                             `;
-                        } else{
-                            var toast = `
+                            } else {
+                                var toast = `
                                 <div id="toastnotif" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
                                     <div class="toast" role="alert" aria-live="polite" aria-atomic="true" data-bs-delay="10000">
                                         <div class="toast-header bg-warning">
@@ -349,37 +357,39 @@
                                     </div>
                                 </div>
                             `;
+                            }
+                            // Append the toast to the body
+                            $('body').append(toast);
+
+                            // Show the toast
+                            $('.toast').toast('show');
+
+                            setTimeout(function() {
+                                $('#' + 'toastnotif').remove();
+                            }, 5000);
+                        } else {
+                            console.log("Error: " + data.text);
                         }
-                        // Append the toast to the body
-                        $('body').append(toast);
-
-                        // Show the toast
-                        $('.toast').toast('show');
-
-                        setTimeout(function() {
-                            $('#' + 'toastnotif').remove();
-                        }, 5000);
-                    } else {
-                        console.log("Error: " + data.text);
-                    }
-                });
-            },
-            error: function(xhr, status, error) {
-                console.error("AJAX Request Error:", status, error);
-            }
-        });
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("AJAX Request Error:", status, error);
+                }
+            });
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             setInterval(productStockNotifications, 15000);
             // checkProductStock();
         });
     </script>
     <!-- toast dismissal -->
     <script>
-        $(document).ready(function () {
-            $('.toast').toast({ autohide: false }).toast('show');
-            $('.toast').on('hidden.bs.toast', function () {
+        $(document).ready(function() {
+            $('.toast').toast({
+                autohide: false
+            }).toast('show');
+            $('.toast').on('hidden.bs.toast', function() {
                 $(this).remove();
             });
         });
@@ -387,14 +397,14 @@
     <!-- account create/edit -->
     <script>
         $(document).ready(function() {
-        
-//CREATE
-            $('#addAccountForm').submit(function (e) {
+
+            //CREATE
+            $('#addAccountForm').submit(function(e) {
                 e.preventDefault();
-            
+
                 // Serialize form data
                 var formData = new FormData(this);
-            
+
                 // Make an AJAX request
                 console.log("Before AJAX request");
                 $.ajax({
@@ -403,7 +413,7 @@
                     data: formData,
                     contentType: false,
                     processData: false,
-                    success: function (response) {
+                    success: function(response) {
                         console.log('Response from server:', response);
                         // Check the response from the server
                         if (response.success) {
@@ -413,9 +423,11 @@
                                 title: 'Account Added!',
                                 text: response.originalString + ' has been successfully added.',
                                 // text: 'The account has been successfully added.',
-                                didClose: () => {window.location.reload();}
+                                didClose: () => {
+                                    window.location.reload();
+                                }
                             });
-                        
+
                             // Optionally, close the modal or perform additional actions
                             $('#addAccountModal').modal('hide');
                         } else {
@@ -427,7 +439,7 @@
                             });
                         }
                     },
-                    error: function () {
+                    error: function() {
                         console.error('Error:', error);
                         // Handle AJAX error
                         Swal.fire({
@@ -439,176 +451,181 @@
                 });
             });
 
-//UPDATE
-        $('form[id^="editAccountForm"]').submit(function (e) {
-        e.preventDefault();
-        
-        // Extract account ID from the form's ID
-        var accountID = this.id.replace('editAccountForm', '');
+            //UPDATE
+            $('form[id^="editAccountForm"]').submit(function(e) {
+                e.preventDefault();
 
-            // Serialize form data
-            var formData = new FormData(this);
-        
-            // Make an AJAX request
-            $.ajax({
-                type: 'POST',
-                url: './adminconfig/edit_account.php',
-                data: formData,
-                contentType: false,
-                processData: false,
-                dataType: 'json',
-                success: function (response) {
-                    // Handle the response from the server
-                    if (response.success) {
-                        $('#editAccountModal' + accountID).modal('hide');
-                       
-                    
-                        // Display SweetAlert2 success notification
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success',
-                            text: response.data,
-                            didClose: () => {window.location.reload();}
-                        });
-                    } else {
-                        // Handle the case where the operation failed
+                // Extract account ID from the form's ID
+                var accountID = this.id.replace('editAccountForm', '');
+
+                // Serialize form data
+                var formData = new FormData(this);
+
+                // Make an AJAX request
+                $.ajax({
+                    type: 'POST',
+                    url: './adminconfig/edit_account.php',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: 'json',
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.success) {
+                            $('#editAccountModal' + accountID).modal('hide');
+
+
+                            // Display SweetAlert2 success notification
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.data,
+                                didClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+                        } else {
+                            // Handle the case where the operation failed
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error,
+                            });
+                        }
+                    },
+                    error: function() {
+                        // Handle AJAX error
                         Swal.fire({
                             icon: 'error',
                             title: 'Error',
-                            text: response.error,
+                            text: 'An error occurred. Please try again.',
                         });
                     }
-                },
-                error: function () {
-                    // Handle AJAX error
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'An error occurred. Please try again.',
-                    });
-                }
+                });
             });
         });
-    });
     </script>
 
     <script>
         //Category
         $(document).ready(function() {
-        
-        //CREATE
-                    $('#addCategoryForm').submit(function (e) {
-                        e.preventDefault();
-                    
-                        // Serialize form data
-                        var formData = new FormData(this);
-                    
-                        // Make an AJAX request
-                        console.log("Before AJAX request");
-                        $.ajax({
-                            type: 'POST',
-                            url: './adminconfig/add_category.php',
-                            data: formData,
-                            contentType: false,
-                            processData: false,
-                            success: function (response) {
-                                console.log('Response from server:', response);
-                                // Check the response from the server
-                                if (response.success) {
-                                    // Display SweetAlert2 success notification
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Category Added!',
-                                        text: response.originalString + ' has been successfully added.',
-                                        // text: 'The product has been successfully added.',
-                                        didClose: () => {window.location.reload();}
-                                    });
-                                
-                                    // Optionally, close the modal or perform additional actions
-                                    $('#addCategoryModal').modal('hide');
-                                } else {
-                                    // Handle the case where product addition failed
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Error',
-                                        text: response.error || 'Failed to add the category. Please try again.',
-                                    });
-                                }
-                            },
-                            error: function () {
-                                console.error('Error:', error);
-                                // Handle AJAX error
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: 'An error occurred. Please try again.',
-                                });
-                            }
-                        });
-                    });
-        
-        //UPDATE
-                $('form[id^="editCategoryForm"]').submit(function (e) {
+
+            //CREATE
+            $('#addCategoryForm').submit(function(e) {
                 e.preventDefault();
-                
-                // Extract product ID from the form's ID
-                var categoryID = this.id.replace('editCategoryForm', '');
-        
-                    // Serialize form data
-                    var formData = new FormData(this);
-                
-                    // Make an AJAX request
-                    $.ajax({
-                        type: 'POST',
-                        //need to be changed
-                        url: './adminconfig/edit_category.php',
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (response) {
-                            // Handle the response from the server
-                            if (response.success) {
-                                $('#editCategoryModal' + categoryID).modal('hide');
-                               
-                            
-                                // Display SweetAlert2 success notification
-                                Swal.fire({
-                                    icon: 'success',
-                                    title: 'Success',
-                                    text: response.data || 'Operation successful.',
-                                    didClose: () => {window.location.reload();}
-                                });
-                            } else {
-                                // Handle the case where the operation failed
-                                Swal.fire({
-                                    icon: 'error',
-                                    title: 'Error',
-                                    text: response.error || 'Failed to perform the operation. Please try again.',
-                                });
-                            }
-                        },
-                        error: function () {
-                            // Handle AJAX error
+
+                // Serialize form data
+                var formData = new FormData(this);
+
+                // Make an AJAX request
+                console.log("Before AJAX request");
+                $.ajax({
+                    type: 'POST',
+                    url: './adminconfig/add_category.php',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log('Response from server:', response);
+                        // Check the response from the server
+                        if (response.success) {
+                            // Display SweetAlert2 success notification
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Category Added!',
+                                text: response.originalString + ' has been successfully added.',
+                                // text: 'The product has been successfully added.',
+                                didClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+
+                            // Optionally, close the modal or perform additional actions
+                            $('#addCategoryModal').modal('hide');
+                        } else {
+                            // Handle the case where product addition failed
                             Swal.fire({
                                 icon: 'error',
                                 title: 'Error',
-                                text: 'An error occurred. Please try again.',
+                                text: response.error || 'Failed to add the category. Please try again.',
                             });
                         }
-                    });
+                    },
+                    error: function() {
+                        console.error('Error:', error);
+                        // Handle AJAX error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred. Please try again.',
+                        });
+                    }
                 });
             });
-       
+
+            //UPDATE
+            $('form[id^="editCategoryForm"]').submit(function(e) {
+                e.preventDefault();
+
+                // Extract product ID from the form's ID
+                var categoryID = this.id.replace('editCategoryForm', '');
+
+                // Serialize form data
+                var formData = new FormData(this);
+
+                // Make an AJAX request
+                $.ajax({
+                    type: 'POST',
+                    //need to be changed
+                    url: './adminconfig/edit_category.php',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        // Handle the response from the server
+                        if (response.success) {
+                            $('#editCategoryModal' + categoryID).modal('hide');
+
+
+                            // Display SweetAlert2 success notification
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: response.data || 'Operation successful.',
+                                didClose: () => {
+                                    window.location.reload();
+                                }
+                            });
+                        } else {
+                            // Handle the case where the operation failed
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: response.error || 'Failed to perform the operation. Please try again.',
+                            });
+                        }
+                    },
+                    error: function() {
+                        // Handle AJAX error
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'An error occurred. Please try again.',
+                        });
+                    }
+                });
+            });
+        });
     </script>
 
-<script>
+    <script>
         //Delete Category
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Attach click event to delete buttons
-            $('#category_table').on('click', '[id^="deleteButton"]', function () {
+            $('#category_table').on('click', '[id^="deleteButton"]', function() {
                 // Extract the product ID from the button ID
                 var categoryID = this.id.replace('deleteButton', '');
-            
+
                 // Show the confirmation dialog
                 Swal.fire({
                     title: "Are you sure?",
@@ -624,9 +641,11 @@
                         $.ajax({
                             type: 'POST',
                             url: './adminconfig/delete_category.php',
-                            data: { categoryID: categoryID },
+                            data: {
+                                categoryID: categoryID
+                            },
                             dataType: 'json',
-                            success: function (response) {
+                            success: function(response) {
                                 // Handle the response from the server
                                 if (response.success) {
                                     // Show success message after deletion
@@ -647,7 +666,7 @@
                                     });
                                 }
                             },
-                            error: function () {
+                            error: function() {
                                 // Show error message for AJAX error
                                 Swal.fire({
                                     title: "Error",
@@ -661,15 +680,15 @@
             });
         });
     </script>
-    
+
     <script>
         //Delete Accounts
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Attach click event to delete buttons
-            $('#accountstable').on('click', '[id^="deleteButton"]', function () {
+            $('#accountstable').on('click', '[id^="deleteButton"]', function() {
                 // Extract the product ID from the button ID
                 var userID = this.id.replace('deleteButton', '');
-            
+
                 // Show the confirmation dialog
                 Swal.fire({
                     title: "Are you sure?",
@@ -685,9 +704,11 @@
                         $.ajax({
                             type: 'POST',
                             url: './adminconfig/deleteaccount.php',
-                            data: { userID: userID },
+                            data: {
+                                userID: userID
+                            },
                             dataType: 'json',
-                            success: function (response) {
+                            success: function(response) {
                                 // Handle the response from the server
                                 if (response.success) {
                                     // Show success message after deletion
@@ -708,7 +729,7 @@
                                     });
                                 }
                             },
-                            error: function () {
+                            error: function() {
                                 // Show error message for AJAX error
                                 Swal.fire({
                                     title: "Error",
@@ -725,14 +746,14 @@
 
 
 
-     <script>
+    <script>
         //Delete customer
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Attach click event to delete buttons
-            $('#customertable').on('click', '[id^="deleteButton"]', function () {
+            $('#customertable').on('click', '[id^="deleteButton"]', function() {
                 // Extract the product ID from the button ID
                 var userID = this.id.replace('deleteButton', '');
-            
+
                 // Show the confirmation dialog
                 Swal.fire({
                     title: "Are you sure?",
@@ -748,9 +769,11 @@
                         $.ajax({
                             type: 'POST',
                             url: './adminconfig/deletecustomer.php',
-                            data: { userID: userID },
+                            data: {
+                                userID: userID
+                            },
                             dataType: 'json',
-                            success: function (response) {
+                            success: function(response) {
                                 // Handle the response from the server
                                 if (response.success) {
                                     // Show success message after deletion
@@ -771,7 +794,7 @@
                                     });
                                 }
                             },
-                            error: function () {
+                            error: function() {
                                 // Show error message for AJAX error
                                 Swal.fire({
                                     title: "Error",
@@ -785,4 +808,145 @@
             });
         });
     </script>
-    
+
+    <!-- Delivery Rider CRUD -->
+    <script>
+        //Display Riders
+        $(document).ready(function() {
+            var ridersTable = $('#ridersTable').DataTable({
+                ajax: {
+                    url: './adminconfig/getall_riders.php',
+                    dataSrc: ''
+                },
+                columns: [
+                    {data: 'id'},
+                    {data: 'name'},
+                    {data: 'contact_number'},
+                    {data: null,
+                        render: function(data, type, row) {
+                            return '<button class="btn btn-primary btn-sm edit-btn" data-id="' + data.id + '">Edit</button> <button class="btn btn-danger btn-sm delete-btn" data-id="' + data.id + '">Delete</button>';
+                        }
+                    }
+                ]
+            });
+
+            $('#reloadDataTable').click(function() {
+                ridersTable.ajax.reload();
+            });
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // Add Rider
+            $('#contactForm').submit(function(event) {
+                event.preventDefault();
+
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    type: 'POST',
+                    url: './adminconfig/add_rider.php',
+                    data: formData,
+                    success: function(response) {
+                        if (response === 'success') {
+                            $('#contactModal').modal('hide');
+                            alert('Congrats! Rider added successfully!');
+                            ridersTable.ajax.reload();
+                        } else if (response === 'error') {
+                            alert('Oops.. There was an error in adding rider. Please try again..');
+                        } else if (response === 'contact_number_exists') {
+                            alert('Oops.. Contact number is already registered. Please try again.');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while processing your request.');
+                    }
+                });
+            });
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // Edit Rider
+            $(document).on('click', '.edit-btn', function() {
+                var editRiderId = $(this).data('id');
+
+                // Fetch rider data using AJAX
+                $.ajax({
+                    url: './adminconfig/fetch_rider.php',
+                    type: 'POST',
+                    data: {
+                        riderId: editRiderId
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            $('#editRiderModal #riderId').val(response.data.id);
+                            $('#editRiderModal #fullName').val(response.data.name);
+                            $('#editRiderModal #contactNumber').val(response.data.contact_number);
+                            $('#editRiderModal').modal('show');
+                        } else {
+                            alert('Error fetching rider data');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred');
+                    }
+                });
+            });
+
+            // Save edit button click
+            $('#saveEdit').click(function() {
+                var formData = $('#editRiderForm').serialize();
+                $.ajax({
+                    type: 'POST',
+                    url: './adminconfig/edit_rider.php',
+                    data: formData,
+                    success: function(response) {
+                        if (response === 'success') {
+                            $('#editRiderModal').modal('hide');
+                            ridersTable.ajax.reload();
+                            // Update the DataTable row or reload the table
+                        } else {
+                            alert('Error updating rider');
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred');
+                    }
+                });
+            });
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            // Delete Rider
+            $(document).on('click', '.delete-btn', function() {
+                var deleteRiderId = $(this).data('id');
+
+                $('#deleteRiderModal #riderId').val(deleteRiderId);
+                $('#deleteRiderModal').modal('show');
+
+                $('#deleteRider').click(function() {
+                    if (confirm("Are you sure you want to delete this rider?")) {
+                        $.ajax({
+                            type: 'POST',
+                            url: './adminconfig/delete_rider.php',
+                            data: {
+                                riderId: deleteRiderId
+                            },
+                            success: function(response) {
+                                if (response === 'success') {
+                                    $('#deleteRiderModal').modal('hide');
+                                    ridersTable.ajax.reload();
+                                } else {
+                                    alert('Can\'t delete rider.');
+                                }
+                            },
+                            error: function() {
+                                alert('An error occurred');
+                            }
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
