@@ -2,7 +2,7 @@
 if (session_status() !== PHP_SESSION_ACTIVE) {
   session_start();
 }
-include('../../config/config.php'); // Include your database connection configuration
+include('../../config/config.php');
 
 $sql = "SELECT id, name, contact_number FROM delivery_rider";
 
@@ -18,6 +18,6 @@ while ($row = $result->fetch_assoc()) {
 $stmt->close();
 $conn->close();
 
-echo json_encode($data); // Encode data as JSON for the DataTable
+echo json_encode($data);
 
 ?>

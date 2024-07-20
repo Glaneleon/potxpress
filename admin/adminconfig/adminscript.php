@@ -818,11 +818,17 @@
                     url: './adminconfig/getall_riders.php',
                     dataSrc: ''
                 },
-                columns: [
-                    {data: 'id'},
-                    {data: 'name'},
-                    {data: 'contact_number'},
-                    {data: null,
+                columns: [{
+                        data: 'id'
+                    },
+                    {
+                        data: 'name'
+                    },
+                    {
+                        data: 'contact_number'
+                    },
+                    {
+                        data: null,
                         render: function(data, type, row) {
                             return '<button class="btn btn-primary btn-sm edit-btn" data-id="' + data.id + '">Edit</button> <button class="btn btn-danger btn-sm delete-btn" data-id="' + data.id + '">Delete</button>';
                         }
@@ -950,3 +956,4 @@
 
         });
     </script>
+    <!-- /Delivery Rider CRUD -->

@@ -2,6 +2,7 @@
 include('../../config/config.php');
 
 if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
+    $rider_id = $_POST['rider_id'];
     $order_id = $_POST['order_id'];
     $status = $_POST['orderStatus'];
     $statusname = ($_POST['orderStatus'] === 'remove') ? 'Removed Updates' : (
@@ -11,6 +12,15 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
     $user_id = $_SESSION['user_id'];
     $datetime = date("Y-m-d H:i:s");
     $ip_address = $_SERVER['REMOTE_ADDR'];
+
+    if (isset($_POST['rider_id'])) {
+        // Insert into rider_orders table
+        $riderOrdersInsert = "INSERT INTO rider_orders (order_id, rider_id, date) VALUES (?, ?, NOW())";
+        $riderOrdersStmt = $conn->prepare($riderOrdersInsert);
+        $riderOrdersStmt->bind_param("ii", $order_id, $rider_id);
+        $riderOrdersStmt->execute();
+        $riderOrdersStmt->close();
+    }
 
     $stmt = $conn->prepare("INSERT INTO order_update_log (user_id, order_id, datetime, text, ip_address) VALUES (?, ?, ?, ?, ?)");
     $stmt->bind_param("iissi", $user_id, $order_id, $datetime, $statusname, $ip_address);

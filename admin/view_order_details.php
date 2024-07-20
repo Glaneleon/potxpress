@@ -116,7 +116,42 @@
         exit();
     }
     ?>
+    <div class="m-5">
+        <h5>Latest Delivery Rider: <a href="#riders" title="Click here to view all riders related to this order.">↵</a></h5>
 
+        <?php
+        $query = "SELECT rider_id FROM rider_orders WHERE order_id = ? ORDER BY date DESC LIMIT 1;";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $order_id);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            if ($row) {
+                $riderQuery = "SELECT * FROM delivery_rider WHERE id = ?";
+                $riderStmt = $conn->prepare($riderQuery);
+                $riderStmt->bind_param("i", $row["rider_id"]);
+                $riderStmt->execute();
+                $riderResult = $riderStmt->get_result();
+
+                if ($riderResult->num_rows > 0) {
+                    $riderRow = $riderResult->fetch_assoc();
+                    $riderName = $riderRow["name"];
+                    $riderContact = $riderRow["contact_number"];
+                } else {
+                    $riderName = "Unknown Rider";
+                    $riderContact = "Missing Details";
+                }
+                echo 'Name: ' . $riderName . '<br>';
+                echo 'Mobile: ' . $riderContact;
+            } else {
+                echo 'Your order doesn\'t have a rider yet.';
+            }
+        } else {
+            echo 'Error fetching rider information: ' . $stmt->error;
+        }
+        ?>
+    </div>
     <div class="mx-5">
         <?php
         $sql = "SELECT status FROM orders WHERE order_id = $order_id";
@@ -143,11 +178,16 @@
                             <form action="./adminconfig/update_order_status.php" method="post" class="row">
                                 <div class="col-md-6 mb-3">
                                     <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
-                                    <select name="orderStatus" class="form-select" required>
+                                    <select name="orderStatus" id="orderStatus" class="form-select" required>
                                         <option value="" selected disabled>Select Status</option>
                                         <option value="remove">Remove All Updates</option>
                                         <option value="in_transit">In Transit</option>
                                         <option value="delivered">Delivered</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3" id="rider_dropdown" style="display: none;">
+                                    <select name="rider_id" class="form-select" required>
+                                        <option value="" selected disabled>Select Rider</option>
                                     </select>
                                 </div>
                                 <div class="col-md-auto">
@@ -158,6 +198,7 @@
                     </div>
                 </div>
             </div>
+
 
             <a href="./admin.php" class="btn btn-secondary">Go Back</a>
 
@@ -204,6 +245,62 @@
         }
         ?>
 
+        <?php
+        $query = "SELECT * FROM rider_orders WHERE order_id = ? ORDER BY date DESC";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $order_id);
+
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+
+            if ($result->num_rows > 0) {
+                echo '<section id="riders">';
+                echo '<div class="container my-5">';
+                echo "<h2>Delivery Rider Log</h2>";
+                echo "<p class='small m-2 text-muted'>Latest rider at the top of the list.</p>";
+                echo '<div class="table-responsive"><table class="table table-bordered">';
+                echo "<tr>";
+                echo "<th>Rider</th>";
+                echo "<th>Mobile Number</th>";
+                echo "<th>Date & Time</th>";
+                echo "</tr>";
+
+                while ($row = $result->fetch_assoc()) {
+                    $riderQuery = "SELECT * FROM delivery_rider WHERE id = ?";
+                    $riderStmt = $conn->prepare($riderQuery);
+                    $riderStmt->bind_param("i", $row["rider_id"]);
+                    $riderStmt->execute();
+                    $riderResult = $riderStmt->get_result();
+
+                    if ($riderResult->num_rows > 0) {
+                        $riderRow = $riderResult->fetch_assoc();
+                        $riderName = $riderRow["name"];
+                        $riderContact = $riderRow["contact_number"];
+                    } else {
+                        $riderName = "Unknown Rider";
+                        $riderContact = "Missing Details";
+                    }
+
+                    echo "<tr>";
+                    echo "<td>" . $riderName . "</td>";
+                    echo "<td>" . $riderContact . "</td>";
+                    echo "<td>" . $row["date"] . "</td>";
+                    echo "</tr>";
+
+                    $riderStmt->close();
+                }
+
+                echo "</table></div></div></section>";
+            } else {
+                echo "No rider/s found for this order.";
+            }
+        } else {
+            echo "Error fetching rider log: " . $conn->error;
+        }
+
+        $stmt->close();
+        ?>
+
     </div>
 
     <!-- Include your scripts if necessary -->
@@ -225,6 +322,50 @@
         echo "</script>";
     }
     ?>
+
+    <script>
+        $(document).ready(function() {
+            const orderStatusDropdown = document.getElementById('orderStatus');
+            const riderDropdown = document.getElementById('rider_dropdown');
+            const form = document.querySelector('form'); // Assuming the form is the direct parent
+
+            orderStatusDropdown.addEventListener('change', () => {
+                if (orderStatusDropdown.value === 'in_transit') {
+                    riderDropdown.style.display = 'block';
+                    // Fetch rider data using AJAX and populate the dropdown
+                    fetch('./adminconfig/getall_riders.php')
+                        .then(response => response.json())
+                        .then(data => {
+                            const riderSelect = riderDropdown.querySelector('select');
+                            riderSelect.innerHTML = '<option value="" selected disabled>Select Rider</option>';
+                            data.forEach(rider => {
+                                const option = document.createElement('option');
+                                option.value = rider.id;
+                                option.text = rider.name;
+                                riderSelect.appendChild(option);
+                            });
+                        });
+                } else {
+                    riderDropdown.style.display = 'none';
+                }
+            });
+
+            orderStatusDropdown.addEventListener('change', () => {
+                if (orderStatusDropdown.value !== 'in_transit') {
+                    riderDropdown.style.display = 'none';
+                    riderDropdown.querySelector('select').removeAttribute('required');
+                }
+            });
+
+            form.addEventListener('submit', (event) => {
+                if (orderStatusDropdown.value === 'in_transit' && riderDropdown.querySelector('select').value === '') {
+                    event.preventDefault(); // Prevent form submission
+                    // Display an error message or handle the situation accordingly
+                    alert('Please select a rider'); // Replace with appropriate error handling
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
