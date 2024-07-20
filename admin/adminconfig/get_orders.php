@@ -1,10 +1,8 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "potxpress";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+include('../../config/config.php');
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);

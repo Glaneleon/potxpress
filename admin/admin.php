@@ -252,6 +252,92 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
     <?php include "./adminconfig/adminscript.php"; ?>
 
     <script>
+        function formatNumber(number, format) {
+            const formatter = new Intl.NumberFormat('en-PH', {
+                style: 'currency',
+                currency: 'PHP',
+                minimumFractionDigits: 2
+            });
+
+            switch (format) {
+                case 'currency':
+                    return formatter.format(number);
+                case 'percent':
+                    return (number * 100).toFixed(2) + '%';
+                case 'decimal':
+                    return number.toFixed(2);
+                case 'thousands':
+                    return number.toLocaleString('en-US');
+                default:
+                    return number;
+            }
+        }
+
+        $(document).ready(function() {
+
+            var table = $('#ordersTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "./adminconfig/getall_orders.php",
+                    type: "POST",
+                    data: function(d) {
+                        d.min_date = $('#min_date').val() || null;
+                        d.max_date = $('#max_date').val() || null;
+                    }
+                },
+                columns: [{
+                        data: "order_id"
+                    },
+                    {
+                        data: "firstname",
+                        render: function(data, type, row) {
+                            return data + " " + row.lastname;
+                        }
+                    },
+                    {
+                        data: "order_date"
+                    },
+                    {
+                        data: "total_amount",
+                        render: function(data, type, row) {
+                            return formatNumber(data, 'currency');
+                        }
+                    },
+                    {
+                        data: "status",
+                        render: function(data, type, row) {
+                            switch (parseInt(data)) {
+                                case 1:
+                                    return "Order Placed";
+                                case 2:
+                                    return "In Transit";
+                                case 3:
+                                    return "Delivered";
+                                default:
+                                    return "Unknown";
+                            }
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return '<a href="view_order_details.php?order_id=' + row.order_id + '" class="btn btn-info">View Details</a>';
+                        }
+                    }
+                ],
+                error: function(xhr, error, code) {
+                    console.error('DataTables error:', error);
+                }
+            });
+
+            $('#min_date, #max_date').change(function() {
+                table.draw();
+            });
+        });
+    </script>
+
+    <script>
         $(document).ready(function() {
             $('#productstable').DataTable();
         });
