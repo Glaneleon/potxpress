@@ -122,16 +122,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                     <div id="content" class="tab-content mt-3">
                         <!-- admin dashboard -->
                         <div class="tab-pane fade" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">
-                            <h1 class="mt-4">Dashboard</h1>
-                            <div class="row mb-4">
-                                <div class="col-md-10">
-                                </div>
-                                <div class="col-md-2">
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#dailySalesReportModal">
-                                        Generate Daily Sales Report
-                                    </button>
-                                </div>
-                            </div>
+                            <h1 class="my-4">Dashboard</h1>
 
                             <?php include_once("./adminconfig/dashboard_data.php"); ?>
                             <!-- dashboard charts -->
@@ -182,26 +173,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                             </div>
                             <!-- /dashboard charts -->
 
-                            <!-- generate report modal -->
-                            <div class="modal fade" id="dailySalesReportModal" tabindex="-1" aria-labelledby="dailySalesReportModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="dailySalesReportModalLabel">Daily Sales Report</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <form method="post" action="./adminconfig/dailysalesreport.php">
-                                                <label for="date">Select Date:</label>
-                                                <input type="date" name="date" id="date" required>
-                                                <br><br>
-                                                <button type="submit" class="btn btn-primary">Generate Report</button>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /generate report modal -->
+
 
                         </div>
                         <!-- other tabs -->
