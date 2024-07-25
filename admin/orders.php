@@ -26,6 +26,7 @@
                 <th>Customer Name</th>
                 <th>Order Date</th>
                 <th>Total Amount</th>
+                <th>Payment</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>

@@ -74,7 +74,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                             </a>
                             <a class="nav-link" aria-current="page" id="pdf-tab" href="#pdf">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-file-pdf"></i></div>
-                                PDF Reports
+                                PDFs
                             </a>
                             <a class="nav-link" aria-current="page" id="riders-tab" href="#riders">
                                 <div class="sb-nav-link-icon"><i class="fa-solid fa-motorcycle"></i></div>
@@ -224,6 +224,15 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
     <?php include "./adminconfig/adminscript.php"; ?>
 
     <script>
+        function openImg(clickedImage) {
+            var image = clickedImage.src;
+            // var source = image.src;
+            console.log(image);
+            window.open(image);
+        }
+    </script>
+
+    <script>
         function formatNumber(number, format) {
             const formatter = new Intl.NumberFormat('en-PH', {
                 style: 'currency',
@@ -274,6 +283,16 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                         data: "total_amount",
                         render: function(data, type, row) {
                             return formatNumber(data, 'currency');
+                        }
+                    },
+                    {
+                        data: 'payment_img',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return '<img id="image" src=".' + data + '" alt= " " class="img-thumbnail mx-3" style="width: 50px; height: 50px;" onclick="openImg(this)">';
+                            } else {
+                                return '<img id="image" src="../assets/payment/default.png" alt= " " class="img-thumbnail mx-3" style="width: 50px; height: 50px;" onclick="openImg(this)">';
+                            }
                         }
                     },
                     {

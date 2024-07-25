@@ -6,12 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .customer-name {
+            display: inline-block;
+        }
+    </style>
 </head>
 
 <body>
 
     <?php
     include('../config/config.php');
+    $user_id = '';
 
     // Check if the order_id is set in the URL
     if (isset($_GET['order_id'])) {
@@ -38,6 +44,7 @@
 
         while ($orderDetail = $orderDetailsResult->fetch_assoc()) {
             $orderDetails[] = $orderDetail;
+            $user_id = $orderDetail['user_id'];
             $totalprice += ($orderDetail['price'] * $orderDetail['quantity']);
         }
 
@@ -50,6 +57,7 @@
       <tr>
           <th>Product ID</th>
           <th>Product Name</th>
+          <th>Product Color</th>
           <th>Quantity</th>
           <th>Total Price</th>
       </tr>
@@ -60,12 +68,14 @@
             $table_content .= '<tr>
           <td>' . $detail['product_id'] . '</td>
           <td>' . $detail['name'] . '</td>
+          <td>' . $detail['product_color'] . '</td>
           <td>' . $detail['quantity'] . '</td>
           <td>₱ ' . ($detail['price'] * $detail['quantity']) . '</td>
       </tr>';
         }
 
         $table_content .= '<tr>
+      <td></td>
       <td></td>
       <td></td>
       <td></td>
@@ -109,7 +119,61 @@
     ' . $status_rows . '
   </div>';
 
+        $customerDetailsQuery = "SELECT uers_test.user_id, uers_test.firstname, uers_test.lastname, shipping_address.* FROM uers_test INNER JOIN shipping_address
+  ON uers_test.user_id = shipping_address.user_id WHERE uers_test.user_id = '" . $user_id . "' AND shipping_address.onSelected = '1' ";
+
+        $customerDetailsQueryResult = $conn->query($customerDetailsQuery);
+
+        if (!$customerDetailsQueryResult) {
+            // Handle query error
+            die("Error fetching customer details.");
+        }
+        $customerDetails = [];
+
+        while ($customerDetail = $customerDetailsQueryResult->fetch_assoc()) {
+            $customerDetails[] = $customerDetail;
+        }
+        $customerName = ucfirst($customerDetails[0]['firstname']) . ' ' . ucfirst($customerDetails[0]['lastname']);
+
+        $address = $customerDetails[0]['street_no'] . ' ' . $customerDetails[0]['baranggay'] . ' ' . $customerDetails[0]['city'] . ' ' . $customerDetails[0]['province'];
+
+
+
+        $customer_details = '<div class="container my-5">
+   <h2>Customer Details</h2>
+   <div class="row">
+       <div class="col-md-10">
+           <p class="mb-0"><strong>Customer Name:</strong> ' . $customerName . '</p>
+           <p class="mb-0"><strong>Shipping Address:</strong> ' . $address . '</p>
+       </div>';
+
+        if ($detail['status'] !== '3') {
+            $customer_details .= '<div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
+        } elseif ($detail['status'] == '3' && (empty($detail['payment_img']) || empty($detail['payment_mode']))) {
+            $customer_details .= '<div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
+        } else {
+            $customer_details .= '</div></div>';
+        }
+
+        echo $customer_details;
         echo $output;
+
+        $orderNo = $detail['order_id_no'];
+
+        $date = DateTime::createFromFormat('Y-m-d H:i:s', $detail['order_date']);
+        $orderDate = $date->format('F d, Y');
+
+        $data = array();
+        foreach ($orderDetails as $detail) {
+            $data[] = array(
+                'product_name' => $detail['name'],
+                'product_color' => $detail['product_color'],
+                'quantity' => $detail['quantity'],
+                'price' => $detail['price']
+            );
+        }
+
+        $jsonData = json_encode($data);
     } else {
         // Redirect to orders page
         header("Location: ./admin.php#orders");
@@ -163,44 +227,53 @@
             $row = $result->fetch_assoc();
             $status = $row["status"];
         ?>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateOrderStatusModal">
-                Update Order Status
-            </button>
+            <div class='d-flex align-items-center justify-content-center mx-5'>
 
-            <div class="modal fade" id="updateOrderStatusModal" tabindex="-1" aria-labelledby="updateOrderStatusModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="updateOrderStatusModalLabel">Update Order Status</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <form action="./adminconfig/update_order_status.php" method="post" class="row">
-                                <div class="col-md-6 mb-3">
-                                    <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
-                                    <select name="orderStatus" id="orderStatus" class="form-select" required>
-                                        <option value="" selected disabled>Select Status</option>
-                                        <option value="remove">Remove All Updates</option>
-                                        <option value="in_transit">In Transit</option>
-                                        <option value="delivered">Delivered</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-6 mb-3" id="rider_dropdown" style="display: none;">
-                                    <select name="rider_id" class="form-select" required>
-                                        <option value="" selected disabled>Select Rider</option>
-                                    </select>
-                                </div>
-                                <div class="col-md-auto">
-                                    <button type="submit" class="btn btn-primary">Update Status</button>
-                                </div>
-                            </form>
+            <?php
+                if ($detail['status'] !== '3' || !empty($detail['payment_mode']))
+                {
+            ?>
+                <button type="button" class="btn btn-primary mx-5" data-bs-toggle="modal" data-bs-target="#updateOrderStatusModal">
+                    Update Order Status
+                </button>
+            <?php
+                }            
+            ?>
+
+                <div class="modal fade" id="updateOrderStatusModal" tabindex="-1" aria-labelledby="updateOrderStatusModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="updateOrderStatusModalLabel">Update Order Status</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="./adminconfig/update_order_status.php" method="post" class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+                                        <select name="orderStatus" id="orderStatus" class="form-select" required>
+                                            <option value="" selected disabled>Select Status</option>
+                                            <option value="remove">Remove All Updates</option>
+                                            <option value="in_transit">In Transit</option>
+                                            <option value="delivered">Delivered</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6 mb-3" id="rider_dropdown" style="display: none;">
+                                        <select name="rider_id" class="form-select" required>
+                                            <option value="" selected disabled>Select Rider</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-auto">
+                                        <button type="submit" class="btn btn-primary">Update Status</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <a href="./admin.php" class="btn btn-secondary">Go Back</a>
             </div>
-
-
-            <a href="./admin.php" class="btn btn-secondary">Go Back</a>
 
         <?php
             $query = "SELECT * FROM order_update_log WHERE order_id = ?";
@@ -303,6 +376,36 @@
 
     </div>
 
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentModalLabel">Register Payment</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="paymentModalForm">
+                        <input type="number" class="form-control" id="orderID" name="orderID" required hidden value="<?= $order_id ?>"></input>
+                        <div class="mb-3">
+                            <label for="payment_method" class="form-label">Payment Method</label>
+                            <input type="text" class="form-control" id="mode" name="mode" required hidden value="cod"></input>
+                            <input type="text" class="form-control" required readonly value="Cash on Delivery"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label">Amount</label>
+                            <!-- <p class="small text-muted"><span class="text-danger">*</span>Additional ₱50.00 shipping fee.</p> -->
+                            <input type="number" class="form-control" id="amount" name="amount" required readonly value="<?= $totalprice ?>"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" form="paymentModalForm" class="btn btn-primary">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Include your scripts if necessary -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -364,6 +467,79 @@
                     alert('Please select a rider'); // Replace with appropriate error handling
                 }
             });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            var orderDate = "<?php echo $orderDate; ?>";
+            var jsonData = <?php echo $jsonData; ?>;
+            var orderNo = "<?php echo $orderNo; ?>";
+            var customerName = "<?php echo $customerName; ?>";
+            $('.generate-cod-receipt').click(function() {
+                if (confirm("Are you sure you want to generate the COD receipt?")) {
+
+                    $('#generate-receipt-button').prop('disabled', true);
+                    $('#loading-indicator').show();
+
+                    $.ajax({
+                        url: './adminconfig/generate_cod_receipt.php',
+                        type: 'POST',
+                        data: {
+                            jsonData: jsonData,
+                            orderDate: orderDate,
+                            orderNo: orderNo,
+                            customerName: customerName
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                alert(response.success);
+                            } else {
+                                alert('An error occurred while generating the receipt.');
+                                console.error(response.error);
+                            }
+                        },
+                        error: function(error) {
+                            console.error(error);
+                            alert('An error occurred. Please try again later.');
+                        },
+                        complete: function() {
+                            $('#generate-receipt-button').prop('disabled', false);
+                            $('#loading-indicator').hide();
+                        }
+                    });
+                }
+            });
+
+
+            $('.register-payment').click(function() {
+                $('#paymentModal').modal('show');
+            });
+
+            $('#paymentModalForm').submit(function(event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+
+                $.ajax({
+                    url: './adminconfig/register_payment.php',
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            alert(response.success);
+                            $('#paymentModal').modal('hide');
+                        } else if (response.error) {
+                            alert(response.error);
+                        }
+                    },
+                    error: function(error) {
+                        console.error('AJAX error:', error);
+                        alert('An unexpected error occurred. Please try again later.');
+                    }
+                });
+            });
+
         });
     </script>
 </body>
