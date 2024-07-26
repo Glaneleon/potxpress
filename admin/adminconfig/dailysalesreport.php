@@ -6,12 +6,13 @@ try {
     $conn = new PDO("mysql:host=$hostname;dbname=$database", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
+    // Consider logging the error or sending an email notification
     echo "Connection failed: " . $e->getMessage();
     exit;
 }
 
 $now = new DateTime();
-$datetoday = $now->format('Y-m-d H:i:s');
+$dateToday = $now->format('Y-m-d H:i:s');
 $milliseconds = $now->format('u');
 $formattedTime = str_replace([':', '.', ' '], '', $now->format('YmdHi') . $milliseconds);
 
@@ -37,10 +38,7 @@ if (empty($endDate) || $endDate == null) {
 } elseif (!empty($startDate) && !empty($endDate)) {
     $stmt->bindParam(':startDate', $startDate);
     $stmt->bindParam(':endDate', $endDate);
-} else{
-    echo "Error binding values to query.";
 }
-
 
 $stmt->execute();
 
@@ -57,38 +55,46 @@ $pdf->AddPage();
 
 // Report Header
 $pdf->Image('../../assets/icons/PotXpress.png', 160, 8, 40);
-$pdf->SetFont('Arial', 'B', 20);
+$pdf->SetFont('Times', 'B', 20);
 $pdf->Ln();
-$pdf->Cell(0, 10, 'Daily Sales Report', 0, 1, 'C');
+$pdf->Cell(0, 10, 'Sales Report', 0, 1, 'C');
 $pdf->Ln();
 $pdf->Ln();
-$pdf->SetFont('Arial', '', 12);
+$pdf->SetFont('Times', '', 12);
 if (!empty($_POST['endDate'])) {
     $pdf->Cell(0, 5, 'Report for Date: From ' . $startDate . ' To '. $endDate, 0, 1);
 }else{
     $pdf->Cell(0, 5, 'Report for Date: ' . $selectedDate, 0, 1);
 }
 $pdf->Ln();
-$pdf->SetFont('Arial', '', 12);
-$pdf->Cell(0, 5, 'Date Generated: ' . $datetoday, 0, 1);
+$pdf->SetFont('Times', '', 12);
+$pdf->Cell(0, 5, 'Date Generated: ' . $dateToday, 0, 1);
 $pdf->Ln();
 
 $columnHeaders = array_keys($orders[0]);
 
+$pdf->SetFillColor(71, 167, 255, 1);
+
 // Table Header
-$pdf->SetFont('Arial', 'B', 10);
+$pdf->SetFont('Times', 'B', 10);
 foreach ($columnHeaders as $columnHeader) {
-    $pdf->Cell(37, 6, ucfirst($columnHeader), 1, 0, 'C');
+    $pdf->Cell(37, 6, ucfirst($columnHeader), 1, 0, 'C', true); // Add 'true' to fill the cell
 }
 $pdf->Ln();
 
 // Table Data
-$pdf->SetFont('Arial', '', 10);
+$pdf->SetFont('Times', '', 10);
+$fill = true; // Alternate row colors
 foreach ($orders as $order) {
+    $pdf->SetFillColor(255, 255, 255); // Reset fill color for each row
+    if ($fill) {
+        $pdf->SetFillColor(240, 240, 240); // Alternate row color
+    }
     foreach ($order as $value) {
-        $pdf->Cell(37, 6, $value, 1, 0);
+        $pdf->Cell(37, 6, $value, 1, 0, '', $fill);
     }
     $pdf->Ln();
+    $fill = !$fill;
 }
 
 // Report Footer
@@ -109,16 +115,12 @@ $check = 0;
 // Save as PDF
 if (!empty($_POST['endDate'])) {
     $filename = '../../dailyreports/' . $startDate . 'to' . $endDate . '-' . $formattedTime . '.pdf';
-    $check = 1;
-} else {
-    $filename = '../../dailyreports/' . $selectedDate . '-' . $formattedTime . '.pdf';
-    $check = 2;
-}
-
-$pdf->Output($filename, 'F');
-if($check = 1 || $check = 2){
+    $pdf->Output($filename, 'F');
     header("Location: ../admin.php");
     exit();
-} else{
-    echo "Failed to save.";
+} else {
+    $filename = '../../dailyreports/' . $selectedDate . '-' . $formattedTime . '.pdf';
+    $pdf->Output($filename, 'F');
+    header("Location: ../admin.php");
+    exit();
 }

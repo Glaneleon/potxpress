@@ -137,7 +137,11 @@
 
         $address = $customerDetails[0]['street_no'] . ' ' . $customerDetails[0]['baranggay'] . ' ' . $customerDetails[0]['city'] . ' ' . $customerDetails[0]['province'];
 
-
+        if ($detail['payment_received'] !== null || !empty($detail['payment_received'])) {
+            $paymentReceived = 'Paid';
+        } else {
+            $paymentReceived = 'Not yet paid';
+        }
 
         $customer_details = '<div class="container my-5">
    <h2>Customer Details</h2>
@@ -145,12 +149,16 @@
        <div class="col-md-10">
            <p class="mb-0"><strong>Customer Name:</strong> ' . $customerName . '</p>
            <p class="mb-0"><strong>Shipping Address:</strong> ' . $address . '</p>
-       </div>';
+           <p class="mb-0"><strong>Payment Status:</strong> ' . $paymentReceived . '</p>';
+
+        if ($detail['payment_received'] !== null || !empty($detail['payment_received'])) {
+            $customer_details .= '<p class="mb-0"><strong>Payment Received:</strong> ₱ ' . $detail['payment_received'] . '</p>';
+        }
 
         if ($detail['status'] !== '3') {
-            $customer_details .= '<div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
-        } elseif ($detail['status'] == '3' && (empty($detail['payment_img']) || empty($detail['payment_mode']))) {
-            $customer_details .= '<div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
+            $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
+        } elseif ($detail['status'] == '3' && !isset($detail['payment_received'])) {
+            $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
         } else {
             $customer_details .= '</div></div>';
         }
@@ -229,16 +237,15 @@
         ?>
             <div class='d-flex align-items-center justify-content-center mx-5'>
 
-            <?php
-                if ($detail['status'] !== '3' || !empty($detail['payment_mode']))
-                {
-            ?>
-                <button type="button" class="btn btn-primary mx-5" data-bs-toggle="modal" data-bs-target="#updateOrderStatusModal">
-                    Update Order Status
-                </button>
-            <?php
-                }            
-            ?>
+                <?php
+                if (!isset($detail['payment_received'])) {
+                ?>
+                    <button type="button" class="btn btn-primary mx-5" data-bs-toggle="modal" data-bs-target="#updateOrderStatusModal">
+                        Update Order Status
+                    </button>
+                <?php
+                }
+                ?>
 
                 <div class="modal fade" id="updateOrderStatusModal" tabindex="-1" aria-labelledby="updateOrderStatusModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
@@ -387,14 +394,17 @@
                     <form id="paymentModalForm">
                         <input type="number" class="form-control" id="orderID" name="orderID" required hidden value="<?= $order_id ?>"></input>
                         <div class="mb-3">
-                            <label for="payment_method" class="form-label">Payment Method</label>
-                            <input type="text" class="form-control" id="mode" name="mode" required hidden value="cod"></input>
-                            <input type="text" class="form-control" required readonly value="Cash on Delivery"></input>
+                            <label class="form-label">Payment Method</label>
+                            <select required name="mode" class="form-select">
+                                <option selected disabled value="">Select Payment Method</option>
+                                <option value="gcash">GCash</option>
+                                <option value="cod">Cash on Delivery</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount</label>
                             <!-- <p class="small text-muted"><span class="text-danger">*</span>Additional ₱50.00 shipping fee.</p> -->
-                            <input type="number" class="form-control" id="amount" name="amount" required readonly value="<?= $totalprice ?>"></input>
+                            <input type="number" class="form-control" id="amount" name="amount" required value="<?= $totalprice ?>"></input>
                         </div>
                     </form>
                 </div>
@@ -526,11 +536,18 @@
                     type: 'POST',
                     data: formData,
                     success: function(response) {
-                        if (response.success) {
-                            alert(response.success);
-                            $('#paymentModal').modal('hide');
-                        } else if (response.error) {
-                            alert(response.error);
+                        try {
+                            var parsedResponse = JSON.parse(response);
+                            if (parsedResponse.success) {
+                                alert(parsedResponse.success);
+                                $('#paymentModal').modal('hide');
+                                location.reload();
+                            } else {
+                                alert(parsedResponse.error);
+                            }
+                        } catch (error) {
+                            console.error('Error parsing JSON:', error);
+                            alert('An error occurred while processing the payment.');
                         }
                     },
                     error: function(error) {
@@ -539,6 +556,7 @@
                     }
                 });
             });
+
 
         });
     </script>
