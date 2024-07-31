@@ -16,7 +16,7 @@ $dateToday = $now->format('Y-m-d H:i:s');
 $milliseconds = $now->format('u');
 $formattedTime = str_replace([':', '.', ' '], '', $now->format('YmdHi') . $milliseconds);
 
-$sql = 'SELECT order_id AS "ID", order_id_no as "Order No.", ship_id as "Ship ID", order_date as "Date", total_amount as "Total Amount" FROM orders WHERE status = 3';
+$sql = 'SELECT order_id_no as "Order No.", order_date as "Date", total_amount as "Total Amount", payment_received as "Payment Received", payment_mode as "Payment Mode" FROM orders WHERE status = 3 AND payment_received IS NOT NULL';
 
 $whereClause = '';
 
@@ -91,7 +91,7 @@ foreach ($orders as $order) {
         $pdf->SetFillColor(240, 240, 240); // Alternate row color
     }
     foreach ($order as $value) {
-        $pdf->Cell(37, 6, $value, 1, 0, '', $fill);
+        $pdf->Cell(37, 6, strtoupper($value), 1, 0, '', $fill);
     }
     $pdf->Ln();
     $fill = !$fill;
@@ -100,13 +100,19 @@ foreach ($orders as $order) {
 // Report Footer
 $pdf->Ln();
 $pdf->Cell(150, 6, 'Total Sales:', 0, 0, 'R');
-
 $totalSales = 0;
 foreach ($orders as $order) {
     $totalSales += $order['Total Amount'];
 }
-
 $pdf->Cell(30, 6, 'PHP ' . number_format($totalSales, 2), 0, 1, 'R');
+
+$pdf->Ln();
+$pdf->Cell(150, 6, 'Total Payment Received:', 0, 0, 'R');
+$totalPayment = 0;
+foreach ($orders as $order) {
+    $totalPayment += $order['Payment Received'];
+}
+$pdf->Cell(30, 6, 'PHP ' . number_format($totalPayment, 2), 0, 1, 'R');
 
 $pdf->Cell(0, 10, 'Page ' . $pdf->PageNo(), 0, 0, 'C');
 

@@ -18,6 +18,7 @@
     <?php
     include('../config/config.php');
     $user_id = '';
+    $amount = 0;
 
     // Check if the order_id is set in the URL
     if (isset($_GET['order_id'])) {
@@ -139,6 +140,7 @@
 
         if ($detail['payment_received'] !== null || !empty($detail['payment_received'])) {
             $paymentReceived = 'Paid';
+            $amount = $detail['payment_received'];
         } else {
             $paymentReceived = 'Not yet paid';
         }
@@ -157,10 +159,14 @@
 
         if ($detail['status'] !== '3') {
             $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
-        } elseif ($detail['status'] == '3' && !isset($detail['payment_received'])) {
+        } elseif ($detail['status'] == '3' && !isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
         } else {
             $customer_details .= '</div></div>';
+        }
+
+        if (isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
+            $customer_details .= '<button class="btn btn-danger mt-3" id="removePayment">Remove Payment Record</button>';
         }
 
         echo $customer_details;
@@ -396,15 +402,15 @@
                         <div class="mb-3">
                             <label class="form-label">Payment Method</label>
                             <select required name="mode" class="form-select">
-                                <option selected disabled value="">Select Payment Method</option>
-                                <option value="gcash">GCash</option>
+                                <!-- <option selected disabled value="">Select Payment Method</option>
+                                <option value="gcash">GCash</option> -->
                                 <option value="cod">Cash on Delivery</option>
                             </select>
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount</label>
                             <!-- <p class="small text-muted"><span class="text-danger">*</span>Additional ₱50.00 shipping fee.</p> -->
-                            <input type="number" class="form-control" id="amount" name="amount" required value="<?= $totalprice ?>"></input>
+                            <input type="number" class="form-control" id="amount" name="amount" required value=""></input>
                         </div>
                     </form>
                 </div>
@@ -555,6 +561,34 @@
                         alert('An unexpected error occurred. Please try again later.');
                     }
                 });
+            });
+
+            $('#removePayment').click(function() {
+                var orderId = <?= $order_id ?>;
+                var amount = <?= $amount ?>;
+
+                if (confirm("WARNING: This action will remove the payment received for order #" + orderId + ". This change cannot be undone. Are you sure you want to proceed?")) {
+                    $.ajax({
+                        url: './adminconfig/remove_payment.php',
+                        type: 'POST',
+                        data: {
+                            orderId: orderId,
+                            amount: amount
+                        },
+                        success: function(response) {
+                            var parsedResponse = JSON.parse(response);
+                            if (parsedResponse.success) {
+                                alert(parsedResponse.message);
+                            } else {
+                                alert(parsedResponse.message);
+                            }
+                            location.reload();
+                        },
+                        error: function(xhr, status, error) {
+                            alert('An error occurred: ' + error);
+                        }
+                    });
+                }
             });
 
 

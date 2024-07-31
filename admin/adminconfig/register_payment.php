@@ -6,6 +6,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $payment_method = $_POST['mode'];
     $orderID = $_POST['orderID'];
     $payment = $_POST['amount'];
+    $ip = $_SERVER['REMOTE_ADDR'];
+    $type = "Add";
+
     if (!is_numeric($payment)) {
         echo json_encode(['success' => false, 'error' => 'Invalid payment amount.']);
         exit;
@@ -48,6 +51,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         echo json_encode(['success' => 'No changes were made.']);
     }
+
+    $logsql = "INSERT INTO `payment_log` (`amount`, `order_id`, `ip_address`, `type`) VALUES (?, ?, ?, ?);";
+    $logstmt = $conn->prepare($logsql);
+    $logstmt->bind_param("diss", $payment, $orderID, $ip, $type);
+    $logstmt->execute();
 
     $stmt->close();
     $conn->close();

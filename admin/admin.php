@@ -87,8 +87,8 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                             </a>
                             <div class="collapse" id="collapsePages" aria-labelledby="headingTwo" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav accordion" id="sidenavAccordionPages">
-                                    <a class="nav-link" aria-current="page" id="orders-tab" href="#orders">
-                                        Order Log
+                                    <a class="nav-link" aria-current="page" id="payments-tab" href="#payments">
+                                        Payment Log
                                     </a>
                                     <a class="nav-link" aria-current="page" id="addproductlog-tab" href="#addproductlog">
                                         Add Product Log
@@ -179,6 +179,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                         <!-- other tabs -->
                         <?php
                         require_once "addproductlogs.php";
+                        require_once "paymentlogs.php";
                         require_once "editproductlogs.php";
                         require_once "deleteproductlogs.php";
                         require_once "products.php";
