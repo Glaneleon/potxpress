@@ -326,6 +326,8 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                                     return "Order Confirmed";
                                 case 5:
                                     return "Invalid Order";
+                                case 6:
+                                    return "<span class='text-danger'>Order Cancelled</span>";
                                 default:
                                     return "Unknown";
                             }

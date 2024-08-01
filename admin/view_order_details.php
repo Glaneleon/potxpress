@@ -149,8 +149,13 @@
 
         // for checking database values
         // var_dump($detail);
+        $customer_details = '<div class="container my-5">';
 
-        $customer_details = '<div class="container my-5">
+        if ($detail['status'] == '6') {
+            $customer_details .= '<h1 class="text-danger fw-bold">ORDER CANCELLED</h1>';
+        }
+
+        $customer_details .= '
    <h2>Customer Details</h2>
    <div class="row">
        <div class="col-md-10">
@@ -171,18 +176,18 @@
             $customer_details .= '<p class="mb-0"><strong>Payment Received:</strong> ₱ ' . $detail['payment_received'] . '</p>';
         }
 
-        if ($detail['status'] !== '3') {
+        if ($detail['status'] !== '3' && $detail['status'] !== '6') {
             $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
-        } elseif ($detail['status'] == '3' && !isset($detail['payment_received'])) {
+        } elseif ($detail['status'] == '3' && !isset($detail['payment_received']) && $detail['status'] !== '6') {
             $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
-        } else {
-            $customer_details .= '</div></div>';
         }
 
-        if (isset($detail['payment_received'])) {
+        $customer_details .= '</div></div>';
+
+        if (isset($detail['payment_received']) && $detail['status'] !== '6') {
             $customer_details .= '<button class="btn btn-danger mt-3" id="removePayment">Remove Payment Record</button>';
         }
-
+        
         echo $customer_details;
         echo $output;
 
@@ -258,7 +263,7 @@
             <div class='d-flex align-items-center justify-content-center mx-5'>
 
                 <?php
-                if (!isset($detail['payment_received'])) {
+                if (!isset($detail['payment_received']) && $detail['status'] !== '6') {
                 ?>
                     <button type="button" class="btn btn-primary mx-5" data-bs-toggle="modal" data-bs-target="#updateOrderStatusModal">
                         Update Order Status
@@ -275,46 +280,52 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                                <form action="./adminconfig/update_order_status.php" method="post" class="row">
-                                    <div class="col-md-6 mb-3">
-                                        <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
-                                        <!-- Order Status -->
-                                        <label for="order_status_label">Order Status:</label>
-                                        <select name="orderStatus" id="orderStatus" class="form-select" required>
-                                            <option value="" selected disabled>Select Status</option>
-                                            <option value="remove">Remove All Updates</option>
-                                            <option value="confirmed">Order Confirmed</option>
-                                            <option value="invalid">Invalid Order</option>
-                                            <option value="in_transit">In Transit</option>
-                                            <option value="delivered">Delivered</option>
-                                        </select>
+                                <form action="./adminconfig/update_order_status.php" method="post">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+                                            <!-- Order Status -->
+                                            <!-- <label for="order_status_label">Order Status:</label> -->
+                                            <select name="orderStatus" id="orderStatus" class="form-select" required>
+                                                <option value="" selected disabled>Select Status</option>
+                                                <option value="remove">Remove All Updates</option>
+                                                <option value="confirmed">Order Confirmed</option>
+                                                <option value="in_transit">In Transit</option>
+                                                <option value="delivered">Delivered</option>
+                                                <option value="invalid">Invalid Order</option>
+                                                <option value="cancel">Cancel Order</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-primary">Update Status</button>
+                                        </div>
                                     </div>
-                                    <!-- Delivery Rider -->
-                                    <div class="col-md-6 mb-3" id="rider_dropdown" style="display: none;">
-                                        <label for="order_status_label">Delivery Rider:</label>
-                                        <select name="rider_id" class="form-select" required>
-                                            <option value="" selected disabled>Select Rider</option>
-                                        </select>
+                                    
+                                    <div class="row mb-3">
+                                        <!-- Delivery Date -->
+                                        <div class="col-md-6" id="delivery_datepicker" style="display: none;">
+                                            <label for="delivery_date_label">Delivery Date:</label>
+                                            <input id="deliveryDate" name="delivery_date" type="date" class="form-select" />
+                                        </div>   
+                                        <!-- Delivery Time -->
+                                        <div class="col-md-6" id="delivery_timepicker" style="display: none;">
+                                            <label for="delivery_time_label">Delivery Time:</label>
+                                            <input id="deliveryTime" name="delivery_time" type="time" class="form-select" value= "<?php echo date("H:i:s");?>"/>
+                                        </div>
+                                        <!-- Delivery Rider -->
+                                        <div class="col-md-6 mt-2" id="rider_dropdown" style="display: none;">
+                                            <label for="order_status_label">Delivery Rider:</label>
+                                            <select name="rider_id" id="rider_id" class="form-select" required>
+                                                <option value="" selected disabled>Select Rider</option>
+                                            </select>
+                                        </div>                                        
                                     </div>
-                                    <!-- Delivery Date -->
-                                    <div class="col-md-6 mb-3" id="delivery_datepicker" style="display: none;">
-                                        <label for="delivery_date_label">Delivery Date:</label>
-                                        <input name="delivery_date" type="date" class="form-select" />
-                                    </div>   
-                                      <!-- Delivery Time -->
-                                      <div class="col-md-6 mb-3" id="delivery_timepicker" style="display: none;">
-                                        <label for="delivery_time_label">Delivery Time:</label>
-                                        <input name="delivery_time" type="time" class="form-select" value= "<?php echo date("H:i:s");?>"/>
-                                    </div>
-                                    <!-- Delivery Time -->
-                                    <div class="mb-3" id="notification_message" style="display: none;">
-                                        <label for="notification_label">Message:</label>
-                                        <textarea class="form-control" id="exampleFormControlTextarea1" name="message_textarea" rows="3"></textarea>
-                                    </div>    
-                                  
-                                
-                                    <div class="col-md-auto">
-                                        <button type="submit" class="btn btn-primary">Update Status</button>
+
+                                    <div class="row mb-3">
+                                        <div id="notification_message" style="display: none;">
+                                            <label for="notification_label">Message:</label>
+                                            <textarea class="form-control" id="exampleFormControlTextarea1" name="message_textarea" rows="3"></textarea>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
@@ -325,7 +336,7 @@
                 <a href="./admin.php#orders" class="btn btn-secondary">Go Back</a>
             </div>
 
-        <?php
+    <?php
             $query = "SELECT * FROM order_update_log WHERE order_id = ?";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("i", $order_id);  // Bind order_id as integer
@@ -366,9 +377,9 @@
             // If the query didn't return any result, display an error message
             echo "No order found with the given order ID.";
         }
-        ?>
+    ?>
 
-        <?php
+    <?php
         // --- Display the riders log
         $query = "SELECT * FROM rider_orders WHERE order_id = ? ORDER BY date DESC";
         $stmt = $conn->prepare($query);
@@ -423,7 +434,7 @@
         }
 
         $stmt->close();
-        ?>
+    ?>
 
     </div>
 
@@ -488,11 +499,16 @@
             const deliveryDatePicker = document.getElementById('delivery_datepicker');
             const deliveryTimePicker = document.getElementById('delivery_timepicker');
             const notification_message = document.getElementById('notification_message');
+
+            const riderOption = document.getElementById('rider_id');
+            const deliveryDate = document.getElementById('deliveryDate');
+            const deliveryTime = document.getElementById('deliveryTime');
+            const messageText = document.getElementById('messageText');
             const form = document.querySelector('form'); // Assuming the form is the direct parent
 
             orderStatusDropdown.addEventListener('change', () => {
                 // --- if the user select the in transit it will show the rider drop down
-                if (orderStatusDropdown.value === 'in_transit') {
+                if (orderStatusDropdown.value === 'in_transit' && orderStatusDropdown.value !== 'cancel') {
                     riderDropdown.style.display = 'block';
                     deliveryDatePicker.style.display = 'block';
                     deliveryTimePicker.style.display = 'block';
@@ -517,7 +533,7 @@
             });
 
             orderStatusDropdown.addEventListener('change', () => {
-                if (orderStatusDropdown.value !== 'in_transit') {
+                if (orderStatusDropdown.value !== 'in_transit' && orderStatusDropdown.value !== 'cancel') {
                     riderDropdown.style.display = 'none';
                     deliveryDatePicker.style.display = 'none';
                     deliveryTimePicker.style.display = 'none';
@@ -526,11 +542,17 @@
                 }
             });
 
+            orderStatusDropdown.addEventListener('change', () => {
+              if (orderStatusDropdown.value === 'cancel') {
+                riderOption.removeAttribute('required');
+              }
+            });
+
             form.addEventListener('submit', (event) => {
                 if (orderStatusDropdown.value === 'in_transit' && riderDropdown.querySelector('select').value === '') {
                     event.preventDefault(); // Prevent form submission
                     // Display an error message or handle the situation accordingly
-                    alert('Please select a rider'); // Replace with appropriate error handling
+                    alert('Please select a rider.'); // Replace with appropriate error handling
                 }
             });
         });
