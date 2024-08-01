@@ -234,6 +234,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
     </script>
 
     <script>
+         // --- Orders Table Data
         function formatNumber(number, format) {
             const formatter = new Intl.NumberFormat('en-PH', {
                 style: 'currency',
@@ -268,8 +269,9 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                         d.max_date = $('#max_date').val() || null;
                     }
                 },
-                columns: [{
-                        data: "order_id"
+                columns: [
+                    {
+                        data: "order_id_no"
                     },
                     {
                         data: "firstname",
@@ -297,6 +299,20 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                         }
                     },
                     {
+                        data: "payment_mode",
+                        render: function(data, type, row) {
+                            switch (data) {
+                                case 'cod':
+                                    return "Cash-On-Delivery";
+                                case 'gcash':
+                                    return "GCash";
+                                default:
+                                    return "Unknown";
+                            }
+                        }
+                    },
+
+                    {
                         data: "status",
                         render: function(data, type, row) {
                             switch (parseInt(data)) {
@@ -307,6 +323,8 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                                 case 3:
                                     return "Delivered";
                                 case 4:
+                                    return "Order Confirmed";
+                                case 5:
                                     return "Invalid Order";
                                 default:
                                     return "Unknown";

@@ -26,7 +26,7 @@
 
         // Retrieve order details and product information
         $orderDetailsQuery = "
-        SELECT orders.*, order_details.*, products.*, order_status.order_placed, order_status.in_transit, order_status.delivered
+        SELECT orders.*, order_details.*, products.*, order_status.order_placed, order_status.in_transit, order_status.delivered, order_status.order_confirmed
         FROM orders 
         JOIN order_details ON orders.order_id = order_details.order_id 
         JOIN products ON order_details.product_id = products.product_id 
@@ -51,6 +51,7 @@
 
         $orderplaced = isset($orderDetails[0]['order_placed']) ? $orderDetails[0]['order_placed'] : null;
         $intransit = isset($orderDetails[0]['in_transit']) ? $orderDetails[0]['in_transit'] : 'Not In Transit';
+        $orderconfirmed = isset($orderDetails[0]['order_confirmed']) ? $orderDetails[0]['order_confirmed'] : 'Not Yet Confirmed';
         $delivered = isset($orderDetails[0]['delivered']) ? $orderDetails[0]['delivered'] : 'Not Yet Delivered';
 
         // Build the table content
@@ -88,6 +89,7 @@
         $status_rows = '';
         $statuses = [
             'order_placed' => ['image' => '../assets/icons/order_placed.png', 'alt' => 'Order Placed', 'text' => 'Order Placed', 'value' => $orderplaced],
+            'order_confirmed' => ['image' => '../assets/icons/order_confirmed.png', 'alt' => 'Order Confirmed', 'text' => 'Order Confirmed', 'value' => $orderconfirmed],
             'in_transit' => ['image' => '../assets/icons/domestic_transit.png', 'alt' => 'In Transit', 'text' => 'In Transit', 'value' => $intransit],
             'delivered' => ['image' => '../assets/icons/delivered.png', 'alt' => 'Delivered', 'text' => 'Delivered', 'value' => $delivered],
         ];
@@ -145,15 +147,21 @@
             $paymentReceived = 'Not yet paid';
         }
 
+        // for checking database values
+        // var_dump($detail);
+
         $customer_details = '<div class="container my-5">
    <h2>Customer Details</h2>
    <div class="row">
        <div class="col-md-10">
-            <p class="mb-0"><strong>Payment Mode:</strong> ' . strtoupper($detail['payment_mode']) . '</p>
             <p class="mb-0"><strong>Order ID:</strong> ' . $detail['order_id'] . '</p>
-           <p class="mb-0"><strong>Customer Name:</strong> ' . $customerName . '</p>
-           <p class="mb-0"><strong>Shipping Address:</strong> ' . $address . '</p>
-           <p class="mb-0"><strong>Payment Status:</strong> ' . $paymentReceived . '</p>';
+            <p class="mb-0"><strong>Customer Name:</strong> ' . $customerName . '</p>
+            <p class="mb-0"><strong>Shipping Address:</strong> ' . $address . '</p>
+            <p class="mb-0"><strong>Payment Status:</strong> ' . $paymentReceived . '</p>';
+
+        if (!empty($detail['payment_mode'])) {
+            $customer_details .= '<p class="mb-0"><strong>Payment Mode:</strong> ' . strtoupper($detail['payment_mode']) . '</p>';
+        }
 
         if ($detail['payment_mode'] == 'gcash') {
             $customer_details .= '<p class="mb-0"><strong>Proof of Payment: </strong><a href="../'.$detail['payment_img'].'" target="_blank" rel="noopener noreferrer">Click Here</a></p>';
@@ -163,15 +171,15 @@
             $customer_details .= '<p class="mb-0"><strong>Payment Received:</strong> ₱ ' . $detail['payment_received'] . '</p>';
         }
 
-        if ($detail['status'] !== '3' && $detail['payment_mode'] !== 'gcash') {
+        if ($detail['status'] !== '3') {
             $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
-        } elseif ($detail['status'] == '3' && !isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
+        } elseif ($detail['status'] == '3' && !isset($detail['payment_received'])) {
             $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
         } else {
             $customer_details .= '</div></div>';
         }
 
-        if (isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
+        if (isset($detail['payment_received'])) {
             $customer_details .= '<button class="btn btn-danger mt-3" id="removePayment">Remove Payment Record</button>';
         }
 
@@ -270,19 +278,41 @@
                                 <form action="./adminconfig/update_order_status.php" method="post" class="row">
                                     <div class="col-md-6 mb-3">
                                         <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+                                        <!-- Order Status -->
+                                        <label for="order_status_label">Order Status:</label>
                                         <select name="orderStatus" id="orderStatus" class="form-select" required>
                                             <option value="" selected disabled>Select Status</option>
                                             <option value="remove">Remove All Updates</option>
+                                            <option value="confirmed">Order Confirmed</option>
+                                            <option value="invalid">Invalid Order</option>
                                             <option value="in_transit">In Transit</option>
                                             <option value="delivered">Delivered</option>
-                                            <option value="not_confirm">Cancel Order</option>
                                         </select>
                                     </div>
+                                    <!-- Delivery Rider -->
                                     <div class="col-md-6 mb-3" id="rider_dropdown" style="display: none;">
+                                        <label for="order_status_label">Delivery Rider:</label>
                                         <select name="rider_id" class="form-select" required>
                                             <option value="" selected disabled>Select Rider</option>
                                         </select>
                                     </div>
+                                    <!-- Delivery Date -->
+                                    <div class="col-md-6 mb-3" id="delivery_datepicker" style="display: none;">
+                                        <label for="delivery_date_label">Delivery Date:</label>
+                                        <input name="delivery_date" type="date" class="form-select" />
+                                    </div>   
+                                      <!-- Delivery Time -->
+                                      <div class="col-md-6 mb-3" id="delivery_timepicker" style="display: none;">
+                                        <label for="delivery_time_label">Delivery Time:</label>
+                                        <input name="delivery_time" type="time" class="form-select" value= "<?php echo date("H:i:s");?>"/>
+                                    </div>
+                                    <!-- Delivery Time -->
+                                    <div class="mb-3" id="notification_message" style="display: none;">
+                                        <label for="notification_label">Message:</label>
+                                        <textarea class="form-control" id="exampleFormControlTextarea1" name="message_textarea" rows="3"></textarea>
+                                    </div>    
+                                  
+                                
                                     <div class="col-md-auto">
                                         <button type="submit" class="btn btn-primary">Update Status</button>
                                     </div>
@@ -339,6 +369,7 @@
         ?>
 
         <?php
+        // --- Display the riders log
         $query = "SELECT * FROM rider_orders WHERE order_id = ? ORDER BY date DESC";
         $stmt = $conn->prepare($query);
         $stmt->bind_param("i", $order_id);
@@ -450,15 +481,24 @@
     ?>
 
     <script>
+        // --- Update Order Status
         $(document).ready(function() {
             const orderStatusDropdown = document.getElementById('orderStatus');
             const riderDropdown = document.getElementById('rider_dropdown');
+            const deliveryDatePicker = document.getElementById('delivery_datepicker');
+            const deliveryTimePicker = document.getElementById('delivery_timepicker');
+            const notification_message = document.getElementById('notification_message');
             const form = document.querySelector('form'); // Assuming the form is the direct parent
 
             orderStatusDropdown.addEventListener('change', () => {
+                // --- if the user select the in transit it will show the rider drop down
                 if (orderStatusDropdown.value === 'in_transit') {
                     riderDropdown.style.display = 'block';
-                    // Fetch rider data using AJAX and populate the dropdown
+                    deliveryDatePicker.style.display = 'block';
+                    deliveryTimePicker.style.display = 'block';
+                    notification_message.style.display = 'block';
+                    
+                    // Fetch rider data using AJAX and populate the dropdown -- galing sa database(getall_riders.php) i-featch niya tapos display sa dropdown
                     fetch('./adminconfig/getall_riders.php')
                         .then(response => response.json())
                         .then(data => {
@@ -479,6 +519,9 @@
             orderStatusDropdown.addEventListener('change', () => {
                 if (orderStatusDropdown.value !== 'in_transit') {
                     riderDropdown.style.display = 'none';
+                    deliveryDatePicker.style.display = 'none';
+                    deliveryTimePicker.style.display = 'none';
+                    notification_message.style.display = 'block';
                     riderDropdown.querySelector('select').removeAttribute('required');
                 }
             });

@@ -22,11 +22,12 @@
     <table class="table table-bordered table-hover" id="ordersTable" style="width:100%">
         <thead>
             <tr>
-                <th>Order ID</th>
+                <th>Order Number</th>
                 <th>Customer Name</th>
                 <th>Order Date</th>
                 <th>Total Amount</th>
                 <th>Payment</th>
+                <th>Payment Mode</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>

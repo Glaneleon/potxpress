@@ -34,7 +34,7 @@ if (!empty($search)) {
 $orderBy = '';
 if (isset($order) && count($order) > 0) {
     $orderBy = 'ORDER BY ';
-    $columnMap = array('0' => 'orders.order_id', '1' => 'uers_test.firstname', '2' => 'orders.order_date', '3' => 'orders.total_amount', '4' => 'orders.payment_img', '5' => 'orders.status'); // Adjust based on your column order
+    $columnMap = array('0' => 'orders.order_id', '1' => 'uers_test.firstname', '2' => 'orders.order_date', '3' => 'orders.total_amount', '4' => 'orders.payment_img', '5' => 'orders.payment_mode', '6' => 'orders.status'); // Adjust based on your column order
     for ($i = 0; $i < count($order); $i++) {
         $columnIdx = $order[$i]['column'];
         $orderBy .= $columnMap[$columnIdx] . ' ' . $order[$i]['dir'] . ', ';
