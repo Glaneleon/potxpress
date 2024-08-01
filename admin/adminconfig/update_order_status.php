@@ -61,6 +61,15 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
         } else {
             $message = "Error inserting record: " . $conn->error;
         }
+    } elseif ($status == 'not_confirm') {
+        $cancelQuery = "UPDATE orders SET status = 4 WHERE order_id = $order_id";
+        $conn->query($cancelQuery);
+
+        if ($stmt->execute()) {
+            $message = "Order is cancelled.";
+        } else {
+            $message = "Error inserting record: " . $conn->error;
+        }
     } else {
         header("Location: ../view_order_details.php?order_id=$order_id&msg=" . urlencode($message));
         exit();
@@ -72,6 +81,6 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
     exit();
 } else {
     // If order_id or status is not set, redirect to the order page
-    header("Location: ../admin.php");
+    header("Location: ../admin.php#orders");
     exit();
 }

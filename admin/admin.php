@@ -306,6 +306,8 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                                     return "In Transit";
                                 case 3:
                                     return "Delivered";
+                                case 4:
+                                    return "Invalid Order";
                                 default:
                                     return "Unknown";
                             }

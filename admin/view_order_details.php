@@ -149,15 +149,21 @@
    <h2>Customer Details</h2>
    <div class="row">
        <div class="col-md-10">
+            <p class="mb-0"><strong>Payment Mode:</strong> ' . strtoupper($detail['payment_mode']) . '</p>
+            <p class="mb-0"><strong>Order ID:</strong> ' . $detail['order_id'] . '</p>
            <p class="mb-0"><strong>Customer Name:</strong> ' . $customerName . '</p>
            <p class="mb-0"><strong>Shipping Address:</strong> ' . $address . '</p>
            <p class="mb-0"><strong>Payment Status:</strong> ' . $paymentReceived . '</p>';
+
+        if ($detail['payment_mode'] == 'gcash') {
+            $customer_details .= '<p class="mb-0"><strong>Proof of Payment: </strong><a href="../'.$detail['payment_img'].'" target="_blank" rel="noopener noreferrer">Click Here</a></p>';
+        }
 
         if ($detail['payment_received'] !== null || !empty($detail['payment_received'])) {
             $customer_details .= '<p class="mb-0"><strong>Payment Received:</strong> ₱ ' . $detail['payment_received'] . '</p>';
         }
 
-        if ($detail['status'] !== '3') {
+        if ($detail['status'] !== '3' && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
         } elseif ($detail['status'] == '3' && !isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
@@ -269,6 +275,7 @@
                                             <option value="remove">Remove All Updates</option>
                                             <option value="in_transit">In Transit</option>
                                             <option value="delivered">Delivered</option>
+                                            <option value="not_confirm">Cancel Order</option>
                                         </select>
                                     </div>
                                     <div class="col-md-6 mb-3" id="rider_dropdown" style="display: none;">
@@ -285,7 +292,7 @@
                     </div>
                 </div>
 
-                <a href="./admin.php" class="btn btn-secondary">Go Back</a>
+                <a href="./admin.php#orders" class="btn btn-secondary">Go Back</a>
             </div>
 
         <?php
