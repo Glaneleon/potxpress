@@ -14,7 +14,7 @@ $user_email = $_POST['user_email'];
 // $user_id = 35;
 // $user_email = 'zoilojun38@gmail.com';
 
-$mail = new PHPMailer(true);
+// $mail = new PHPMailer(true);
 try{
     // $mail->SMTPDebug = 0;                    //Enable verbose debug output
     // $mail->isSMTP();                                            //Send using SMTP

@@ -34,6 +34,12 @@ fetch("./adminconfig/get_orders.php")
           stack: "orderStatus",
         },
         {
+          label: "Order Confirmed",
+          data: new Array(allMonths.length).fill(0), // Initialize with zeros
+          backgroundColor: "#FFA500",
+          stack: "orderStatus",
+        },
+        {
           label: "Order Placed",
           data: new Array(allMonths.length).fill(0), // Initialize with zeros
           backgroundColor: "#0d6efd",
@@ -47,12 +53,15 @@ fetch("./adminconfig/get_orders.php")
       const month = new Date(order.date).getMonth();
       const monthLabel = allMonths[month];
 
-      if (order.status === "3") {
+      if (order.status === "4") {
         chartData.datasets[0].data[month]++;
-      } else if (order.status === "2") {
+      } else if (order.status === "3") {
         chartData.datasets[1].data[month]++;
-      } else {
+      } 
+      else if (order.status === "2") {
         chartData.datasets[2].data[month]++;
+      }else if (order.status === "1") {
+        chartData.datasets[3].data[month]++;
       }
     }
 

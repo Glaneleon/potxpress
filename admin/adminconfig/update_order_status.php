@@ -3,60 +3,23 @@ include('../../config/config.php');
 date_default_timezone_set('Asia/Manila');
 
 if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
+    $rider_id = $_POST['rider_id'];
     $order_id = $_POST['order_id'];
     $status = $_POST['orderStatus'];
-    $rider_id = isset($_POST['rider_id']) ? $_POST['rider_id'] : null;
-    $delivery_date = isset($_POST['delivery_date']) ? $_POST['delivery_date'] : null;
-    $delivery_time = isset($_POST['delivery_time']) ? $_POST['delivery_time'] : null;
-    $notificationMessage = isset($_POST['message_textarea']) ? $_POST['message_textarea'] : null;
+    $delivery_date = $_POST['delivery_date'];
+    $delivery_time = $_POST['delivery_time'];
+    $notificationMessage = $_POST['message_textarea'];
+    
 
-    //--- get the order_id_no from the database
-    $stmt = $conn->prepare("SELECT order_id_no, user_id, total_amount, payment_mode FROM orders WHERE order_id = ?");
-    $stmt->bind_param("i", $order_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-
-        $order_id_no = $row["order_id_no"];
-        $order_user_id = $row["user_id"];
-        $total_amount = $row["total_amount"];
-        $payment_mode = $row["payment_mode"];
-    } else {
-        $message = "Order details not found for #".$order_id;
-        header("Location: ../view_order_details.php?order_id=$order_id&msg=" . urlencode($message));
-        exit();
-    }
-
-    if ($status == 'cancel') {
-        try {
-            $updateOrdersQuery = "UPDATE orders SET status = 6, payment_status = 1 WHERE order_id = ?";
-            $stmt = $conn->prepare($updateOrdersQuery);
-            $stmt->bind_param("i", $order_id);
-            $stmt->execute();
-            
-            $orderStatus = 6;
-            if(empty($notificationMessage)){
-                $notificationMessage = "Your order ".$order_id_no." has been cancelled. Please check details.";
-            }
-            
-            $stmtInsertNotication = $conn->prepare( "INSERT INTO notification (order_id, user_id, messages, order_status, notif_date) VALUES (?, ?, ?, ?, ?)");
-            $stmtInsertNotication->bind_param("iisis", $order_id, $order_user_id, $notificationMessage , $orderStatus, $notificationDate);
-            $stmtInsertNotication->execute();
-            $stmtInsertNotication->close();
-            $message = "Record inserted successfully.";
-        } catch (Exception $e) {
-            error_log("Error updating order: " . $e->getMessage());
-            $message = "There was an error updating record for #" . $order_id;
-            header("Location: ../view_order_details.php?order_id=$order_id&msg=" . urlencode($message));
-            exit();
-        }
-    }
-     
+    // $statusname = ($_POST['orderStatus'] === 'remove') ? 'Removed Updates' : (
+    //     ($_POST['orderStatus'] === 'in_transit') ? 'Changed to In-Transit' : (($_POST['orderStatus'] === 'confirmed') ? 'Changed to Confirmed') :(
+    //         ($_POST['orderStatus'] === 'delivered') ? 'Changed to Delivered' : null
+    // ));
     $statusname = null;
 
-    switch ($_POST['orderStatus']) {
+        switch ($_POST['orderStatus']) {
         case 'remove':
             $statusname = 'Removed Updates';
             break;
@@ -73,10 +36,9 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
             $statusname = 'Invalid Order';
             break;
         case 'cancel':
-            $statusname = 'Order Cancelled';
+            $statusname = 'Cancelled Order';
             break;
     }
-
     $user_id = $_SESSION['user_id'];
     $datetime = date("Y-m-d H:i:s");
     $ip_address = $_SERVER['REMOTE_ADDR'];
@@ -97,6 +59,20 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
 
     //-- date for the notification
     $notificationDate = date("Y/m/d H:i:s");
+    
+    //--- get the order_id_no from the database
+    $getOrderIdNoQuery = "SELECT order_id_no, user_id, total_amount, payment_mode FROM orders WHERE order_id = $order_id";
+    $getOrderIdNoQueryResult = $conn->query($getOrderIdNoQuery);
+    if( $getOrderIdNoQueryResult -> num_rows > 0){
+        $row = $getOrderIdNoQueryResult->fetch_assoc();
+        $order_id_no = $row["order_id_no"];
+        $order_user_id = $row["user_id"];
+        $total_amount = $row["total_amount"];
+        $payment_mode = $row["payment_mode"];
+        
+    }
+    
+
 
     if ($status == 'remove') {
         $removeUpdateOrdersQuery = "UPDATE orders SET status = 1 WHERE order_id = $order_id";
@@ -113,18 +89,19 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
     } elseif ($status == 'confirmed') {
         $updateOrderStatusQuery = "UPDATE order_status SET order_confirmed = NOW() WHERE order_id = $order_id";
         $conn->query($updateOrderStatusQuery);
+        print($payment_mode);
         if($payment_mode == 'gcash'){
-            $updateOrdersQuery = "UPDATE orders SET status = 4, payment_received = $total_amount WHERE order_id = $order_id";
+            $updateOrdersQuery = "UPDATE orders SET status = 2, payment_received = $total_amount WHERE order_id = $order_id";
             $conn->query($updateOrdersQuery);
         }else if($payment_mode == 'cod'){
-            $updateOrdersQuery = "UPDATE orders SET status = 4 WHERE order_id = $order_id";
+            $updateOrdersQuery = "UPDATE orders SET status = 2 WHERE order_id = $order_id";
             $conn->query($updateOrdersQuery);
         }
         
         if ($stmt->execute()) {
             // --- Inserting notification 
             
-            $orderStatus = 4;
+            $orderStatus = 2;
             if(empty($notificationMessage)){
                 $notificationMessage = "Thank you for your order! We've received your order ".$order_id_no." and will process it shortly.";
             }
@@ -133,18 +110,21 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
             $stmtInsertNotication->bind_param("iisis", $order_id, $order_user_id, $notificationMessage , $orderStatus, $notificationDate);
             $stmtInsertNotication->execute();
             $stmtInsertNotication->close();
+
+            // $message = $payment_mode;
             $message = "Record inserted successfully.";
         } else {
             $message = "Error inserting record: " . $conn->error;
         }
-    } elseif ($status == 'in_transit') {
+    }
+    elseif ($status == 'in_transit') {
         // $delivery_date = date("Y-m-d H:i:s");
         $deliveryDateAndTime = date("Y-m-d H:i:s", strtotime($delivery_date. " ". $delivery_time));
         // $updateOrderStatusQuery = "UPDATE order_status SET in_transit = NOW() WHERE order_id = $order_id";
         $updateOrderStatusQuery = "UPDATE order_status SET in_transit = '".$deliveryDateAndTime."' WHERE order_id = '".$order_id."' "; // putang inang = yan !!!
         $conn->query($updateOrderStatusQuery);
         // --- update the Orders 
-        $updateOrdersQuery = "UPDATE orders SET status = 2, delivery_date = '".$deliveryDateAndTime."'  WHERE order_id = $order_id";
+        $updateOrdersQuery = "UPDATE orders SET status = 3, delivery_date = '".$deliveryDateAndTime."'  WHERE order_id = $order_id";
         $conn->query($updateOrdersQuery);
 
         if ($stmt->execute()) {
@@ -154,7 +134,7 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
             // $normalTime = $time->format('h:i:s A');
             $normalTime = date('h:i A', strtotime($delivery_time));
 
-            $orderStatus = 2;
+            $orderStatus = 3;
             if(empty($notificationMessage)){
                 $notificationMessage = "Your order ".$order_id_no." is on its way! Expect to receive your package by ".$messageDeliveryDate. " at ". $normalTime;
             }
@@ -165,19 +145,19 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
             $stmtInsertNotication->close();
 
             
-            // $message = "Record inserted successfully.";
-            $message = $delivery_date. " " . $delivery_time;
+            $message = "Record inserted successfully.";
+            // $message = $delivery_date. " " . $delivery_time;
         } else {
             $message = "Error inserting record: " . $conn->error;
         }
     } elseif ($status == 'delivered') {
         $updateDeliveredQuery = "UPDATE order_status SET delivered = NOW() WHERE order_id = $order_id";
         $conn->query($updateDeliveredQuery);
-        $updateOrdersQuery = "UPDATE orders SET status = 3 WHERE order_id = $order_id";
+        $updateOrdersQuery = "UPDATE orders SET status = 4 WHERE order_id = $order_id";
         $conn->query($updateOrdersQuery);
 
         if ($stmt->execute()) {
-            $orderStatus = 3;
+            $orderStatus = 4;
             if(empty($notificationMessage)){
                 $notificationMessage = "Your order ".$order_id_no." has been delivered";
             }
@@ -210,7 +190,32 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
         } else {
             $message = "Error inserting record: " . $conn->error;
         }
-    } else {
+    
+    }else if ($status == 'cancel') {
+        try {
+            $updateOrdersQuery = "UPDATE orders SET status = 6, payment_status = 1 WHERE order_id = ?";
+            $stmt = $conn->prepare($updateOrdersQuery);
+            $stmt->bind_param("i", $order_id);
+            $stmt->execute();
+            
+            $orderStatus = 6;
+            if(empty($notificationMessage)){
+                $notificationMessage = "Your order ".$order_id_no." has been cancelled. Please check details.";
+            }
+            
+            $stmtInsertNotication = $conn->prepare( "INSERT INTO notification (order_id, user_id, messages, order_status, notif_date) VALUES (?, ?, ?, ?, ?)");
+            $stmtInsertNotication->bind_param("iisis", $order_id, $order_user_id, $notificationMessage , $orderStatus, $notificationDate);
+            $stmtInsertNotication->execute();
+            $stmtInsertNotication->close();
+            $message = "Record inserted successfully.";
+        } catch (Exception $e) {
+            error_log("Error updating order: " . $e->getMessage());
+            $message = "There was an error updating record for #" . $order_id;
+            header("Location: ../view_order_details.php?order_id=$order_id&msg=" . urlencode($message));
+            exit();
+        }
+    } 
+     else {
         header("Location: ../view_order_details.php?order_id=$order_id&msg=" . urlencode($message));
         exit();
     }

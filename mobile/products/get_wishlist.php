@@ -7,7 +7,7 @@ $user_id = $_POST['user_id'];
 // $user_id = 46;
 
 
-$sqlQuery = "SELECT wishlist.*, products.name, products.category,products.description, products.imagefilepath, products.price FROM wishlist INNER JOIN products ON wishlist.product_id = products.product_id WHERE wishlist.user_id = '$user_id' ";
+$sqlQuery = "SELECT wishlist.*, products.name, products.category,products.description, products.imagefilepath, products.price, products.stock_quantity, products.sold FROM wishlist INNER JOIN products ON wishlist.product_id = products.product_id WHERE wishlist.user_id = '$user_id' ";
 
 $resultOfQuery = $conn->query($sqlQuery);
 

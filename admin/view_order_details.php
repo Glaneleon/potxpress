@@ -176,15 +176,15 @@
             $customer_details .= '<p class="mb-0"><strong>Payment Received:</strong> ₱ ' . $detail['payment_received'] . '</p>';
         }
 
-        if ($detail['status'] !== '3' && $detail['status'] !== '6') {
+        if (($detail['status'] == '3' || $detail['status'] == '2') && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
-        } elseif ($detail['status'] == '3' && !isset($detail['payment_received']) && $detail['status'] !== '6') {
+        } elseif ($detail['status'] == '4' && !isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
         }
 
         $customer_details .= '</div></div>';
 
-        if (isset($detail['payment_received']) && $detail['status'] !== '6') {
+        if (isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '<button class="btn btn-danger mt-3" id="removePayment">Remove Payment Record</button>';
         }
         
@@ -263,7 +263,7 @@
             <div class='d-flex align-items-center justify-content-center mx-5'>
 
                 <?php
-                if (!isset($detail['payment_received']) && $detail['status'] !== '6') {
+                if (!isset($detail['payment_received']) || $detail['status'] !== '6') {
                 ?>
                     <button type="button" class="btn btn-primary mx-5" data-bs-toggle="modal" data-bs-target="#updateOrderStatusModal">
                         Update Order Status
@@ -459,7 +459,7 @@
                         <div class="mb-3">
                             <label for="amount" class="form-label">Amount</label>
                             <!-- <p class="small text-muted"><span class="text-danger">*</span>Additional ₱50.00 shipping fee.</p> -->
-                            <input type="number" class="form-control" id="amount" name="amount" required value=""></input>
+                            <input type="float" class="form-control" id="amount" name="amount" required value=""></input>
                         </div>
                     </form>
                 </div>
@@ -533,7 +533,7 @@
             });
 
             orderStatusDropdown.addEventListener('change', () => {
-                if (orderStatusDropdown.value !== 'in_transit' && orderStatusDropdown.value !== 'cancel') {
+                if (orderStatusDropdown.value !== 'in_transit' && orderStatusDropdown.value !== 'cancels') {
                     riderDropdown.style.display = 'none';
                     deliveryDatePicker.style.display = 'none';
                     deliveryTimePicker.style.display = 'none';

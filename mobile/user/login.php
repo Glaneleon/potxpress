@@ -9,7 +9,7 @@ $user_password = md5($_POST['user_password']);
 //  $user_email = 'zoilojun38@gmail.com';
 
 //  $sqlQuery = "SELECT user_id, firstname, lastname, email, passwords, status FROM uers_test WHERE email ='$user_email' AND passwords = '$user_password'";
-  $sqlQuery = "SELECT user_id, user_id_no, firstname, lastname, age, birthdate, gender, username, email, phone_no, status FROM uers_test WHERE email ='$user_email' AND passwords = '$user_password' ";
+  $sqlQuery = "SELECT * FROM uers_test WHERE email ='$user_email' AND passwords = '$user_password' ";
 
 $resultOfQuery = $conn->query($sqlQuery);
 

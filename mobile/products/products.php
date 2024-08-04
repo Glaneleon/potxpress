@@ -1,6 +1,6 @@
 <?php
 include '../../config/config.php';
-
+// get the products use in the Home screen in the mobile app
 
 $sqlQuery = "SELECT * FROM products";
 

@@ -319,11 +319,11 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                                 case 1:
                                     return "Order Placed";
                                 case 2:
-                                    return "In Transit";
-                                case 3:
-                                    return "Delivered";
-                                case 4:
                                     return "Order Confirmed";
+                                case 3:
+                                    return "In Transit";
+                                case 4:
+                                    return "Delivered";
                                 case 5:
                                     return "Invalid Order";
                                 case 6:

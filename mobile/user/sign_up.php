@@ -22,7 +22,7 @@ $username = $_POST['username'];
 $email = $_POST['email'];
 $phone_no = $_POST['phone_no'];
 $password = md5($_POST['passwords']);
-$token = md5(rand(11111,9999));
+
 
 // $firstName = 'Jun';
 // $lastName = 'Zoilo';
@@ -32,9 +32,9 @@ $token = md5(rand(11111,9999));
 // $password = md5('password');
 // $token = md5(rand(11111,9999));
 
-$mail = new PHPMailer(true);
+// $mail = new PHPMailer(true);
 try{
-    //Server settings
+    // Server settings
     // $mail->SMTPDebug = SMTP::DEBUG_SERVER;  
     // $mail->SMTPDebug = 0;                    //Enable verbose debug output
     // $mail->isSMTP();                                            //Send using SMTP
@@ -238,7 +238,7 @@ try{
 
     $user_id_no =  abs( crc32( uniqid() ) );
 
-    $sqlQuery = "INSERT INTO uers_test(user_id_no, firstname, lastname, age, birthdate, gender, username, email, phone_no, passwords, token) VALUES ('".$user_id_no."','".$firstName."', '".$lastName."', '".$age."', '".$birthdate."', '".$gender."','".$username."','".$email."', '".$phone_no."', '".$password."','".$token."')";
+    $sqlQuery = "INSERT INTO uers_test(user_id_no, firstname, lastname, age, birthdate, gender, username, email, phone_no, passwords) VALUES ('".$user_id_no."','".$firstName."', '".$lastName."', '".$age."', '".$birthdate."', '".$gender."','".$username."','".$email."', '".$phone_no."', '".$password."')";
 
     $resultOfQuery = $conn->query($sqlQuery);
 
