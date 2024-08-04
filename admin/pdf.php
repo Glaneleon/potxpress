@@ -15,7 +15,6 @@
                 return isPDF($file) && !in_array($file, ['.', '..']);
             });
 
-            // Sort PDFs by modification time in descending order
             usort($pdfs, function ($a, $b) use ($pdf_dir) {
                 $file1 = $pdf_dir . $a;
                 $file2 = $pdf_dir . $b;
@@ -43,6 +42,12 @@
                 return isPDF($cfile) && !in_array($cfile, ['.', '..']);
             });
 
+            usort($pdfs, function ($a, $b) use ($cpdf_dir) {
+                $file1 = $cpdf_dir . $a;
+                $file2 = $cpdf_dir . $b;
+                return filemtime($file2) - filemtime($file1);
+            });
+
             if (!empty($cpdfs)) {
                 foreach ($cpdfs as $cpdf) {
                     $cfilepath = $cpdf_dir . $cpdf;
@@ -50,6 +55,33 @@
                 }
             } else {
                 echo '<li>No COD Receipts found.</li>';
+            }
+            ?>
+        </ul>
+    </div>
+    <div class="mb-4">
+        <h2>Official COD Receipts</h2>
+        <ul class="list-group">
+            <?php
+            $opdf_dir = '../receipts/storecopy/';
+
+            $opdfs = array_filter(scandir($opdf_dir), function ($ofile) use ($opdf_dir) {
+                return isPDF($ofile) && !in_array($ofile, ['.', '..']);
+            });
+
+            usort($pdfs, function ($a, $b) use ($opdf_dir) {
+                $file1 = $opdf_dir . $a;
+                $file2 = $opdf_dir . $b;
+                return filemtime($file2) - filemtime($file1);
+            });
+
+            if (!empty($opdfs)) {
+                foreach ($opdfs as $opdf) {
+                    $ofilepath = $opdf_dir . $opdf;
+                    echo "<li><a href='$ofilepath' target='_blank'>$opdf</a></li>";
+                }
+            } else {
+                echo '<li>No Official COD Receipts found.</li>';
             }
             ?>
         </ul>

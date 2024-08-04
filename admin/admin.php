@@ -236,6 +236,13 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
             console.log(image);
             window.open(image);
         }
+
+        function ucfirst(str) {
+            if (typeof str !== 'string') {
+                return str;
+            }
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
     </script>
 
     <script>
@@ -280,7 +287,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                     {
                         data: "firstname",
                         render: function(data, type, row) {
-                            return data + " " + row.lastname;
+                            return ucfirst(data) + " " + ucfirst(row.lastname);
                         }
                     },
                     {
@@ -325,13 +332,13 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                                 case 2:
                                     return "Order Confirmed";
                                 case 3:
-                                    return "In Transit";
+                                    return "<span class='text-warning fw-bold'>In Transit</span>";
                                 case 4:
-                                    return "Delivered";
+                                    return "<span class='text-success fw-bold'>Delivered</span>";
                                 case 5:
                                     return "Invalid Order";
                                 case 6:
-                                    return "<span class='text-danger'>Order Cancelled</span>";
+                                    return "<span class='text-danger fw-bold'>Cancelled</span>";
                                 default:
                                     return "Unknown";
                             }
@@ -390,8 +397,6 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
             $('#category_table').DataTable();
         } );
     </script> -->
-
-
 
 </body>
 

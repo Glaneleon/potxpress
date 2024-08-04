@@ -23,10 +23,7 @@ $totalRecords = $totalRecordsRow['total'];
 
 $whereClause = "";
 if (!empty($search)) {
-    $whereClause .= " WHERE (orders.order_id LIKE '%$search%' 
-                   OR orders.order_date LIKE '%$search%'
-                   OR orders.status LIKE '%$search%'
-                   OR orders.total_amount LIKE '%$search%'
+    $whereClause .= " WHERE (orders.order_id_no LIKE '%$search%'
                    OR uers_test.firstname LIKE '%$search%' 
                    OR uers_test.lastname LIKE '%$search%')";
 }

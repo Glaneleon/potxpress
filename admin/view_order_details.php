@@ -160,6 +160,7 @@
    <div class="row">
        <div class="col-md-10">
             <p class="mb-0"><strong>Order ID:</strong> ' . $detail['order_id'] . '</p>
+            <p class="mb-0"><strong>Order ID No.:</strong> ' . $detail['order_id_no'] . '</p>
             <p class="mb-0"><strong>Customer Name:</strong> ' . $customerName . '</p>
             <p class="mb-0"><strong>Shipping Address:</strong> ' . $address . '</p>
             <p class="mb-0"><strong>Payment Status:</strong> ' . $paymentReceived . '</p>';
