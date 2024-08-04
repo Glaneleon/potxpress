@@ -170,7 +170,7 @@
         }
 
         if ($detail['payment_mode'] == 'gcash') {
-            $customer_details .= '<p class="mb-0"><strong>Proof of Payment: </strong><a href="../'.$detail['payment_img'].'" target="_blank" rel="noopener noreferrer">Click Here</a></p>';
+            $customer_details .= '<p class="mb-0"><strong>Proof of Payment: </strong><a href="../' . $detail['payment_img'] . '" target="_blank" rel="noopener noreferrer">Click Here</a></p>';
         }
 
         if ($detail['payment_received'] !== null || !empty($detail['payment_received'])) {
@@ -188,7 +188,7 @@
         if (isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '<button class="btn btn-danger mt-3" id="removePayment">Remove Payment Record</button>';
         }
-        
+
         echo $customer_details;
         echo $output;
 
@@ -226,15 +226,15 @@
             $result = $stmt->get_result();
             $row = $result->fetch_assoc();
             if ($row) {
-                $riderQuery = "SELECT * FROM delivery_rider WHERE id = ?";
+                $riderQuery = "SELECT * FROM delivery_riders WHERE id = ?";
                 $riderStmt = $conn->prepare($riderQuery);
-                $riderStmt->bind_param("i", $row["rider_id"]);
+                $riderStmt->bind_param("i", $row["id"]);
                 $riderStmt->execute();
                 $riderResult = $riderStmt->get_result();
 
                 if ($riderResult->num_rows > 0) {
                     $riderRow = $riderResult->fetch_assoc();
-                    $riderName = $riderRow["name"];
+                    $riderName = $riderRow["first_name"] . $riderRow["last_name"];
                     $riderContact = $riderRow["contact_number"];
                 } else {
                     $riderName = "Unknown Rider";
@@ -301,17 +301,17 @@
                                             <button type="submit" class="btn btn-primary">Update Status</button>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="row mb-3">
                                         <!-- Delivery Date -->
                                         <div class="col-md-6" id="delivery_datepicker" style="display: none;">
                                             <label for="delivery_date_label">Delivery Date:</label>
                                             <input id="deliveryDate" name="delivery_date" type="date" class="form-select" />
-                                        </div>   
+                                        </div>
                                         <!-- Delivery Time -->
                                         <div class="col-md-6" id="delivery_timepicker" style="display: none;">
                                             <label for="delivery_time_label">Delivery Time:</label>
-                                            <input id="deliveryTime" name="delivery_time" type="time" class="form-select" value= "<?php echo date("H:i:s");?>"/>
+                                            <input id="deliveryTime" name="delivery_time" type="time" class="form-select" value="<?php echo date("H:i:s"); ?>" />
                                         </div>
                                         <!-- Delivery Rider -->
                                         <div class="col-md-6 mt-2" id="rider_dropdown" style="display: none;">
@@ -319,7 +319,7 @@
                                             <select name="rider_id" id="rider_id" class="form-select" required>
                                                 <option value="" selected disabled>Select Rider</option>
                                             </select>
-                                        </div>                                        
+                                        </div>
                                     </div>
 
                                     <div class="row mb-3">
@@ -337,7 +337,7 @@
                 <a href="./admin.php#orders" class="btn btn-secondary">Go Back</a>
             </div>
 
-    <?php
+        <?php
             $query = "SELECT * FROM order_update_log WHERE order_id = ?";
             $stmt = $conn->prepare($query);
             $stmt->bind_param("i", $order_id);  // Bind order_id as integer
@@ -378,9 +378,9 @@
             // If the query didn't return any result, display an error message
             echo "No order found with the given order ID.";
         }
-    ?>
+        ?>
 
-    <?php
+        <?php
         // --- Display the riders log
         $query = "SELECT * FROM rider_orders WHERE order_id = ? ORDER BY date DESC";
         $stmt = $conn->prepare($query);
@@ -398,11 +398,11 @@
                 echo "<tr>";
                 echo "<th>Rider</th>";
                 echo "<th>Mobile Number</th>";
-                echo "<th>Date & Time</th>";
+                echo "<th>Delivery Schedule</th>";
                 echo "</tr>";
 
                 while ($row = $result->fetch_assoc()) {
-                    $riderQuery = "SELECT * FROM delivery_rider WHERE id = ?";
+                    $riderQuery = "SELECT * FROM delivery_riders WHERE id = ?";
                     $riderStmt = $conn->prepare($riderQuery);
                     $riderStmt->bind_param("i", $row["rider_id"]);
                     $riderStmt->execute();
@@ -410,7 +410,7 @@
 
                     if ($riderResult->num_rows > 0) {
                         $riderRow = $riderResult->fetch_assoc();
-                        $riderName = $riderRow["name"];
+                        $riderName = $riderRow["first_name"] .' '. $riderRow["last_name"];
                         $riderContact = $riderRow["contact_number"];
                     } else {
                         $riderName = "Unknown Rider";
@@ -435,7 +435,7 @@
         }
 
         $stmt->close();
-    ?>
+        ?>
 
     </div>
 
@@ -514,7 +514,7 @@
                     deliveryDatePicker.style.display = 'block';
                     deliveryTimePicker.style.display = 'block';
                     notification_message.style.display = 'block';
-                    
+
                     // Fetch rider data using AJAX and populate the dropdown -- galing sa database(getall_riders.php) i-featch niya tapos display sa dropdown
                     fetch('./adminconfig/getall_riders.php')
                         .then(response => response.json())
@@ -524,7 +524,7 @@
                             data.forEach(rider => {
                                 const option = document.createElement('option');
                                 option.value = rider.id;
-                                option.text = rider.name;
+                                option.text = rider.first_name + ' ' + rider.last_name;
                                 riderSelect.appendChild(option);
                             });
                         });
@@ -544,9 +544,9 @@
             });
 
             orderStatusDropdown.addEventListener('change', () => {
-              if (orderStatusDropdown.value === 'cancel') {
-                riderOption.removeAttribute('required');
-              }
+                if (orderStatusDropdown.value === 'cancel') {
+                    riderOption.removeAttribute('required');
+                }
             });
 
             form.addEventListener('submit', (event) => {
@@ -561,6 +561,19 @@
 
     <script>
         $(document).ready(function() {
+
+            const deliveryDateInput = document.getElementById('deliveryDate');
+
+            function disablePastDates() {
+                const today = new Date();
+                const year = today.getFullYear();
+                const month = String(today.getMonth() + 1).padStart(2, '0');
+                const day = String(today.getDate()).padStart(2, '0');
+                const minDate = `${year}-${month}-${day}`;
+                deliveryDateInput.min = minDate;
+            }
+
+            disablePastDates();
 
             var orderDate = "<?php echo $orderDate; ?>";
             var jsonData = <?php echo $jsonData; ?>;
