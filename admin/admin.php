@@ -1,6 +1,11 @@
 <?php
 session_start();
 include('../config/config.php');
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
 // Check if the user is logged in and is an admin
 if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
@@ -234,7 +239,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
     </script>
 
     <script>
-         // --- Orders Table Data
+        // --- Orders Table Data
         function formatNumber(number, format) {
             const formatter = new Intl.NumberFormat('en-PH', {
                 style: 'currency',
@@ -269,8 +274,7 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                         d.max_date = $('#max_date').val() || null;
                     }
                 },
-                columns: [
-                    {
+                columns: [{
                         data: "order_id_no"
                     },
                     {
@@ -349,6 +353,30 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
                 table.draw();
             });
         });
+    </script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+        const invalid = urlParams.get('invalid');
+
+        if (error) {
+            alert('Error generating PDF. Please try again.');
+            cleanUrl();
+        } else if (success) {
+            alert('Generated report successfully. You can view it on the PDF tab.');
+            cleanUrl();
+        } else if (invalid) {
+            alert('No orders found for the selected date. Please try again.');
+            cleanUrl();
+        }
+
+        function cleanUrl() {
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.replaceState({}, document.title, url);
+        }
     </script>
 
     <script>

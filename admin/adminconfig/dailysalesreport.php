@@ -16,9 +16,28 @@ $dateToday = $now->format('Y-m-d H:i:s');
 $milliseconds = $now->format('u');
 $formattedTime = str_replace([':', '.', ' '], '', $now->format('YmdHi') . $milliseconds);
 
-$sql = 'SELECT order_id_no as "Order No.", order_date as "Date", total_amount as "Total Amount", payment_received as "Payment Received", payment_mode as "Payment Mode" FROM orders WHERE status = 3 AND payment_received IS NOT NULL';
+$sql = 'SELECT 
+            order_id_no as "Order No.", 
+            DATE(order_date) as "Date", 
+            total_amount as "Order Value", 
+            payment_received as "Total Paid", 
+            payment_mode as "Mode", 
+            CONCAT(uers_test.firstname, " ", uers_test.lastname) AS "Customer Name" 
+        FROM orders 
+        INNER JOIN uers_test 
+        ON orders.user_id = uers_test.user_id 
+        WHERE orders.status = 4
+        AND orders.payment_received IS NOT NULL';
 
 $whereClause = '';
+// if (isset($_POST['potCategory'])) {
+//     $whereClause .= ' AND DATE(order_date) = :selectedDate ORDER BY order_date DESC';
+// }
+
+if (isset($_POST['customerId'])) {
+    $customerId = $_POST['customerId'];
+    $whereClause .= ' AND uers_test.user_id = :customerId';
+}
 
 if (empty($_POST['endDate'])) {
     $selectedDate = $_POST['date'];
@@ -33,6 +52,10 @@ $sql .= $whereClause;
 
 $stmt = $conn->prepare($sql);
 
+if (isset($_POST['customerId'])) {
+    $stmt->bindParam(':customerId', $customerId);
+}
+
 if (empty($endDate) || $endDate == null) {
     $stmt->bindParam(':selectedDate', $selectedDate);
 } elseif (!empty($startDate) && !empty($endDate)) {
@@ -45,10 +68,12 @@ $stmt->execute();
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($orders)) {
-    echo "No orders found for the selected date.";
-    header("Location: ../admin.php");
+    header("Location: ../admin.php?invalid=pdf_generation_failed#orders");
     exit();
 }
+
+// for testing db returns
+// var_dump($orders);
 
 $pdf = new FPDF();
 $pdf->AddPage();
@@ -78,7 +103,7 @@ $pdf->SetFillColor(71, 167, 255, 1);
 // Table Header
 $pdf->SetFont('Times', 'B', 10);
 foreach ($columnHeaders as $columnHeader) {
-    $pdf->Cell(37, 6, ucfirst($columnHeader), 1, 0, 'C', true); // Add 'true' to fill the cell
+    $pdf->Cell(31, 6, ucfirst($columnHeader), 1, 0, 'C', true); // Add 'true' to fill the cell
 }
 $pdf->Ln();
 
@@ -90,29 +115,34 @@ foreach ($orders as $order) {
     if ($fill) {
         $pdf->SetFillColor(240, 240, 240); // Alternate row color
     }
-    foreach ($order as $value) {
-        $pdf->Cell(37, 6, strtoupper($value), 1, 0, '', $fill);
-    }
+    foreach ($order as $key => $value) {
+        if ($key === 'Order Value' || $key === 'Total Paid') {
+            $formattedValue = number_format($value, 2);
+            $pdf->Cell(31, 6, $formattedValue, 1, 0, 'R', $fill);
+        } else {
+            $pdf->Cell(31, 6, strtoupper($value), 1, 0, 'C', $fill);
+        }
+    }    
     $pdf->Ln();
     $fill = !$fill;
 }
 
 // Report Footer
 $pdf->Ln();
-$pdf->Cell(150, 6, 'Total Sales:', 0, 0, 'R');
+$pdf->Cell(150, 5, 'Total Order Value:', 0, 0, 'R');
 $totalSales = 0;
 foreach ($orders as $order) {
-    $totalSales += $order['Total Amount'];
+    $totalSales += $order['Order Value'];
 }
-$pdf->Cell(30, 6, 'PHP ' . number_format($totalSales, 2), 0, 1, 'R');
+$pdf->Cell(30, 5, 'PHP ' . number_format($totalSales, 2), 0, 1, 'R');
 
 $pdf->Ln();
-$pdf->Cell(150, 6, 'Total Payment Received:', 0, 0, 'R');
+$pdf->Cell(150, 0, 'Total Payment Received:', 0, 0, 'R');
 $totalPayment = 0;
 foreach ($orders as $order) {
-    $totalPayment += $order['Payment Received'];
+    $totalPayment += $order['Total Paid'];
 }
-$pdf->Cell(30, 6, 'PHP ' . number_format($totalPayment, 2), 0, 1, 'R');
+$pdf->Cell(30, 0, 'PHP ' . number_format($totalPayment, 2), 0, 1, 'R');
 
 $pdf->Cell(0, 10, 'Page ' . $pdf->PageNo(), 0, 0, 'C');
 
@@ -121,12 +151,16 @@ $check = 0;
 // Save as PDF
 if (!empty($_POST['endDate'])) {
     $filename = '../../dailyreports/' . $startDate . 'to' . $endDate . '-' . $formattedTime . '.pdf';
-    $pdf->Output($filename, 'F');
-    header("Location: ../admin.php");
-    exit();
 } else {
     $filename = '../../dailyreports/' . $selectedDate . '-' . $formattedTime . '.pdf';
-    $pdf->Output($filename, 'F');
-    header("Location: ../admin.php");
+}
+
+$output = $pdf->Output($filename, 'F');
+
+if ($output === false) {
+    header("Location: ../admin.php?error=pdf_generation_failed#orders");
+    exit();
+} else {
+    header("Location: ../admin.php?success=pdf_generated#pdf");
     exit();
 }

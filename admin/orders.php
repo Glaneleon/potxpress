@@ -44,13 +44,48 @@
                 </div>
                 <div class="modal-body">
                     <form method="post" action="./adminconfig/dailysalesreport.php">
-                        <div class="form-group">
-                            <label for="date">Start Date:</label>
-                            <input type="date" name="date" id="date" class="mb-4" required>
+                        <div class="mb-2">
+                            <label for="date" class="form-label">Start Date:</label>
+                            <input type="date" name="date" id="date" class="form-control mb-4" required>
                         </div>
-                        <div class="form-group">
-                            <label for="date">End Date:</label>
-                            <input type="date" name="endDate" id="endDate" class="mb-4">
+                        <div class="mb-2">
+                            <label for="endDate" class="form-label">End Date:</label>
+                            <input type="date" name="endDate" id="endDate" class="form-control mb-4">
+                        </div>
+                        <!-- <div class="mb-2">
+                            <label for="potCategory" class="form-label">Product Category:</label>
+                            <select name="potCategory" id="potCategory" class="form-select mb-4">
+                                <option selected disabled value="">Select a category..</option>
+                            </select>
+                        </div> -->
+                        <div class="mb-2">
+                            <label for="customerId" class="form-label">Customer Name:</label>
+                            <p class="small text-muted">Only customers with existing records can be chosen.</p>
+
+                            <?php
+                            $sql = "SELECT DISTINCT uers_test.user_id, uers_test.firstname, uers_test.lastname 
+                                    FROM orders 
+                                    INNER JOIN uers_test 
+                                    ON orders.user_id = uers_test.user_id";
+
+                            $result = $conn->query($sql);
+                            ?>
+
+                            <select name="customerId" id="customerId" class="form-select mb-4">
+                                <option selected disabled value="">Select a customer..</option>
+                                <?php
+                                if ($result->num_rows > 0) {
+                                    while ($row = $result->fetch_assoc()) {
+                                        echo "<option value='" . $row['user_id'] . "'>". $row['user_id'] .' - '. ucfirst($row['firstname']) . ' ' . ucfirst($row['lastname']) . "</option>";
+                                    }
+                                }
+                                ?>
+                            </select>
+
+                            <?php
+                            $conn->close();
+                            ?>
+
                         </div>
                         <button type="submit" class="btn btn-primary">Generate Report</button>
                     </form>
