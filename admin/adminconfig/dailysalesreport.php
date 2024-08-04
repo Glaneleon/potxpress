@@ -11,6 +11,14 @@ try {
     exit;
 }
 
+function formatDate($dateString) {
+    $date = DateTime::createFromFormat('Y-m-d', $dateString);
+    if (!$date) {
+        return 'Invalid date format';
+    }
+    return $date->format('F d, Y');
+}
+
 $now = new DateTime();
 $dateToday = $now->format('Y-m-d H:i:s');
 $milliseconds = $now->format('u');
@@ -79,11 +87,18 @@ $pdf = new FPDF();
 $pdf->AddPage();
 
 // Report Header
-$pdf->Image('../../assets/icons/PotXpress.png', 160, 8, 40);
+$pdf->Image('../../assets/icons/PotXpress.png', 83, 10, 45);
+$pdf->Cell(0, 4, '', 0, 1, 'C');
+$pdf->Ln();
+$pdf->Ln();
+$pdf->SetFont('Times', '', 12);
+$pdf->Cell(0, 5, 'Pot Supplier Manila', 0, 1, 'C');
+$pdf->Cell(0, 5, '39 Dona Hemady Street, Quezon City, Philippines', 0, 1, 'C');
+$pdf->Cell(0, 5, '0915 303 3690', 0, 1, 'C');
+$pdf->Ln();
+$pdf->Ln();
 $pdf->SetFont('Times', 'B', 20);
-$pdf->Ln();
 $pdf->Cell(0, 10, 'Sales Report', 0, 1, 'C');
-$pdf->Ln();
 $pdf->Ln();
 $pdf->SetFont('Times', '', 12);
 if (!empty($_POST['endDate'])) {
@@ -119,6 +134,9 @@ foreach ($orders as $order) {
         if ($key === 'Order Value' || $key === 'Total Paid') {
             $formattedValue = number_format($value, 2);
             $pdf->Cell(31, 6, $formattedValue, 1, 0, 'R', $fill);
+        } elseif ($key === 'Date') {
+            $formattedDate = formatDate($value);
+            $pdf->Cell(31, 6, $formattedDate, 1, 0, 'C', $fill);
         } else {
             $pdf->Cell(31, 6, strtoupper($value), 1, 0, 'C', $fill);
         }

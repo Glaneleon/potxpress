@@ -1,5 +1,6 @@
 <div class="tab-pane fade" id="pdf" role="tabpanel" aria-labelledby="pdf-tab">
     <div class="mb-4">
+        <p class="small text-muted">Newer files will be at the top of the lists.</p>
         <h2>Sales Reports</h2>
         <ul class="list-group">
             <?php
@@ -42,10 +43,10 @@
                 return isPDF($cfile) && !in_array($cfile, ['.', '..']);
             });
 
-            usort($pdfs, function ($a, $b) use ($cpdf_dir) {
-                $file1 = $cpdf_dir . $a;
-                $file2 = $cpdf_dir . $b;
-                return filemtime($file2) - filemtime($file1);
+            usort($cpdfs, function ($a, $b) use ($cpdf_dir) {
+                $cfile1 = $cpdf_dir . $a;
+                $cfile2 = $cpdf_dir . $b;
+                return filemtime($cfile2) - filemtime($cfile1);
             });
 
             if (!empty($cpdfs)) {
@@ -69,10 +70,10 @@
                 return isPDF($ofile) && !in_array($ofile, ['.', '..']);
             });
 
-            usort($pdfs, function ($a, $b) use ($opdf_dir) {
-                $file1 = $opdf_dir . $a;
-                $file2 = $opdf_dir . $b;
-                return filemtime($file2) - filemtime($file1);
+            usort($opdfs, function ($a, $b) use ($opdf_dir) {
+                $ofile1 = $opdf_dir . $a;
+                $ofile2 = $opdf_dir . $b;
+                return filemtime($ofile2) - filemtime($ofile1);
             });
 
             if (!empty($opdfs)) {
