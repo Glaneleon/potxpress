@@ -811,6 +811,13 @@
 
     <!-- Delivery Rider CRUD -->
     <script>
+        function ucfirst(str) {
+            if (typeof str !== 'string') {
+                return str;
+            }
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
         //Display Riders
         $(document).ready(function() {
             var ridersTable = $('#ridersTable').DataTable({
@@ -819,18 +826,45 @@
                     dataSrc: ''
                 },
                 columns: [{
-                        data: 'id'
-                    },
-                    {
-                        data: 'name'
-                    },
-                    {
-                        data: 'contact_number'
+                        data: 'id',
+                        title: 'ID',
+                        render: function(data, type, row) {
+                            return 'R' + data;
+                        }
                     },
                     {
                         data: null,
+                        title: 'Name',
                         render: function(data, type, row) {
-                            return '<button class="btn btn-primary btn-sm edit-btn" data-id="' + data.id + '">Edit</button> <button class="btn btn-danger btn-sm delete-btn" data-id="' + data.id + '">Delete</button>';
+                            return ucfirst(row.first_name) + ' ' + ucfirst(row.last_name);
+                        }
+                    },
+                    {
+                        data: 'contact_number',
+                        title: 'Contact Number'
+                    },
+                    {
+                        data: 'email',
+                        title: 'Email'
+                    },
+                    {
+                        data: 'status',
+                        title: 'Status',
+                        render: function(data, type, row) {
+                            if (data === 'active') {
+                                return '<span class="text-success fw-bold">' + ucfirst(data) + '</span>';
+                            } else if (data === 'terminated') {
+                                return '<span class="text-danger fw-bold">' + ucfirst(data) + '</span>';
+                            } else {
+                                return ucfirst(data);
+                            }
+                        }
+                    },
+                    {
+                        data: null,
+                        title: 'Actions',
+                        render: function(data, type, row) {
+                            return '<button class="btn btn-primary btn-sm edit-btn" data-id="' + row.id + '">Edit</button> <button class="btn btn-danger btn-sm delete-btn" data-id="' + row.id + '">Delete</button>';
                         }
                     }
                 ]
@@ -843,7 +877,7 @@
             ////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // Add Rider
-            $('#contactForm').submit(function(event) {
+            $('#addRider').submit(function(event) {
                 event.preventDefault();
 
                 var formData = $(this).serialize();
@@ -861,6 +895,10 @@
                             alert('Oops.. There was an error in adding rider. Please try again..');
                         } else if (response === 'contact_number_exists') {
                             alert('Oops.. Contact number is already registered. Please try again.');
+                        } else if (response === 'email_exists') {
+                            alert('Oops.. Email is already registered. Please try again.');
+                        } else if (response === 'license_exists') {
+                            alert('Oops.. License number is already registered. Please try again.');
                         }
                     },
                     error: function() {
@@ -885,9 +923,27 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
-                            $('#editRiderModal #riderId').val(response.data.id);
-                            $('#editRiderModal #fullName').val(response.data.name);
-                            $('#editRiderModal #contactNumber').val(response.data.contact_number);
+                            const riderData = response.data;
+
+                            $('#editRiderForm #riderId').val(riderData.id);
+                            $('#editRiderForm #first_name').val(riderData.first_name);
+                            $('#editRiderForm #middle_name').val(riderData.middle_name);
+                            $('#editRiderForm #last_name').val(riderData.last_name);
+                            $('#editRiderForm #email').val(riderData.email);
+                            $('#editRiderForm #date_of_birth').val(riderData.date_of_birth);
+                            $('#editRiderForm #address').val(riderData.address);
+                            $('#editRiderForm #contact_number').val(riderData.contact_number);
+                            $('#editRiderForm #license_number').val(riderData.license_number);
+                            $('#editRiderForm #license_expiry_date').val(riderData.license_expiry_date);
+                            $('#editRiderForm #vehicle_type').val(riderData.vehicle_type);
+                            $('#editRiderForm #vehicle_plate_number').val(riderData.vehicle_plate_number);
+                            $('#editRiderForm #status').val(riderData.status);
+                            $('#editRiderForm #date_hired').val(riderData.date_hired);
+                            $('#editRiderForm #bank_account_number').val(riderData.bank_account_number);
+                            $('#editRiderForm #bank_name').val(riderData.bank_name);
+                            $('#editRiderForm #emergency_contact_name').val(riderData.emergency_contact_name);
+                            $('#editRiderForm #emergency_contact_number').val(riderData.emergency_contact_number);
+                            $('#editRiderForm #notes').val(riderData.notes);
                             $('#editRiderModal').modal('show');
                         } else {
                             alert('Error fetching rider data');
@@ -909,10 +965,16 @@
                     success: function(response) {
                         if (response === 'success') {
                             $('#editRiderModal').modal('hide');
+                            alert('Successfully edited rider.');
                             ridersTable.ajax.reload();
-                            // Update the DataTable row or reload the table
-                        } else {
-                            alert('Error updating rider');
+                        } else if (response === 'error') {
+                            alert('Oops.. There was an error in adding rider. Please try again..');
+                        } else if (response === 'contact_number_exists') {
+                            alert('Oops.. Contact number is already registered. Please try again.');
+                        } else if (response === 'email_exists') {
+                            alert('Oops.. Email is already registered. Please try again.');
+                        } else if (response === 'license_exists') {
+                            alert('Oops.. License number is already registered. Please try again.');
                         }
                     },
                     error: function() {
@@ -941,6 +1003,7 @@
                             success: function(response) {
                                 if (response === 'success') {
                                     $('#deleteRiderModal').modal('hide');
+                                    alert('Successfully deleted rider from database.');
                                     ridersTable.ajax.reload();
                                 } else {
                                     alert('Can\'t delete rider.');

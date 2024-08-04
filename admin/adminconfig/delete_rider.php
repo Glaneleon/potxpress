@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $stmt = $conn->prepare("DELETE FROM delivery_rider WHERE id = ?");
+    $stmt = $conn->prepare("DELETE FROM delivery_riders WHERE id = ?");
     $stmt->bind_param("i", $riderId);
 
     if ($stmt->execute()) {

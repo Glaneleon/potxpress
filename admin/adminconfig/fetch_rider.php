@@ -7,7 +7,7 @@ include('../../config/config.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $riderId = $_POST['riderId'];
 
-    $stmt = $conn->prepare("SELECT id, name, contact_number FROM delivery_rider WHERE id = ?");
+    $stmt = $conn->prepare("SELECT * FROM delivery_riders WHERE id = ?");
     $stmt->bind_param("i", $riderId);
     $stmt->execute();
     $result = $stmt->get_result();

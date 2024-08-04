@@ -4,7 +4,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 include('../../config/config.php');
 
-$sql = "SELECT id, name, contact_number FROM delivery_rider";
+$sql = "SELECT * FROM delivery_riders";
 
 $stmt = $conn->prepare($sql);
 $stmt->execute();
