@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="customers" role="tabpanel" aria-labelledby="customers-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Customers</h2>
     <?php
         // Sample code to retrieve and display customer data
@@ -22,8 +24,6 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Mobile</th>
-                    <th>Password</th>
-                    <!-- Add more columns as needed -->
                 </tr>
             </thead>
             <tbody>
@@ -33,11 +33,11 @@
                         <td><?php echo $customer['firstname'] . " " . $customer['lastname']; ?></td>
                         <td><?php echo $customer['email']; ?></td>
                         <td><?php echo $customer['phone_no']; ?></td>
-                        <!-- <td>  <button class="btn btn-danger" id="deleteButton<?php// echo $customer['user_id']; ?>">Delete</button></td> -->
-                        <!-- Add more columns as needed -->
                     </tr>
                 <?php endwhile; ?>
             </tbody>
         </table>
     </div>
 </div>
+
+<?php require_once "./adminconfig/adminscript.php"; ?>

@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="accesslog" role="tabpanel" aria-labelledby="accesslog-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Access Logs</h2>
     <?php
         include('../config/config.php');
@@ -38,3 +40,5 @@
         </table>
     </div>
 </div>
+
+<?php require_once "./adminconfig/adminscript.php"; ?>

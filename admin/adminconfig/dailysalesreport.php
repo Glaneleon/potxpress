@@ -76,7 +76,7 @@ $stmt->execute();
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 if (empty($orders)) {
-    header("Location: ../admin.php?invalid=pdf_generation_failed#orders");
+    header("Location: ../orders.php?invalid=pdf_generation_failed");
     exit();
 }
 
@@ -172,19 +172,19 @@ if (!empty($_POST['endDate'])) {
 } else {
     $filename = $selectedDate . '-' . $formattedTime . '.pdf';
 }
-$filepath = $filename;
+$filepath = '../../dailyreports/'.$filename;
 
 $output = $pdf->Output($filepath, 'F');
 
 if ($output === false) {
-    header("Location: ../admin.php?error=pdf_generation_failed#orders");
+    header("Location: ../orders.php?error=pdf_generation_failed");
     exit();
 } else {
     
     try {
         $stmt = $conn->prepare("INSERT INTO pdfs (type, file_path) VALUES (?, ?)");
         $stmt->bindParam(1, $type);
-        $stmt->bindParam(2, $filepath);
+        $stmt->bindParam(2, $filename);
     
         $type = "Sales Report";
     
@@ -193,6 +193,6 @@ if ($output === false) {
         echo "Error: " . $e->getMessage();
     }
 
-    header("Location: ../admin.php?success=pdf_generated#pdf");
+    header("Location: ../pdf.php?success=pdf_generated");
     exit();
 }

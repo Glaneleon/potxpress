@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="category" role="tabpanel" aria-labelledby="category-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Category</h2>
 
     <button type="button" class="my-2 btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
@@ -9,7 +11,7 @@
         $categoryQuery = "SELECT * FROM category";
         $categoryResult = $conn->query($categoryQuery);
 
-        if (!$productResult) {
+        if (!$categoryResult) {
             die("Error fetching category: " . $conn->error);
         }
     ?>
@@ -93,3 +95,5 @@
 
 
 </div>
+
+<?php require_once "./adminconfig/adminscript.php"; ?>

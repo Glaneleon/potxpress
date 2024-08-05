@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="products" role="tabpanel" aria-labelledby="products-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Products</h2>
         <button type="button" class="my-2 btn btn-success" data-bs-toggle="modal" data-bs-target="#addProductModal">
             Add Product
@@ -178,3 +180,4 @@
 
 </div>
 
+<?php require_once "./adminconfig/adminscript.php"; ?>

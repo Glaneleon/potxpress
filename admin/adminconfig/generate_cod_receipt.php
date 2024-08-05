@@ -30,7 +30,7 @@ try {
   // Handle missing data or invalid data types
   error_log("Error fetching data: " . $e->getMessage());
   // Redirect or display an error message to the user
-  header('Location: admin.php'); // Replace with your error page
+  header('Location: view_order_details.php?order_id='+$orderId); // Replace with your error page
   exit;
 }
 

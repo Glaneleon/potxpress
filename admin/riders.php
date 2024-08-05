@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="riders" role="tabpanel" aria-labelledby="riders-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Delivery Riders</h2>
     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#contactModal">
         Add Rider
@@ -229,3 +231,5 @@
         </div>
     </div>
 </div>
+
+<?php require_once "./adminconfig/adminscript.php"; ?>

@@ -1,5 +1,267 @@
-    <!-- fragment url -->
+</div>
+                </main>
+                <footer class="py-4 bg-light mt-auto">
+                    <div class="container-fluid px-4">
+                        <div class="d-flex align-items-center justify-content-between small">
+                            <div class="text-muted">Copyright &copy; PotXpress 2024</div>
+                            <div>
+                                <a href="#">Privacy Policy</a>
+                                &middot;
+                                <a href="#">Terms &amp; Conditions</a>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </div>
+
+    </div>
+    <!-- orderspermonthchart -->
+    <script src="./adminconfig/graphs/chart.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/2.0.7/js/dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/2.0.7/js/dataTables.bootstrap5.js"></script>
+
     <script>
+        function openImg(clickedImage) {
+            var image = clickedImage.src;
+            // var source = image.src;
+            console.log(image);
+            window.open(image);
+        }
+
+        function ucfirst(str) {
+            if (typeof str !== 'string') {
+                return str;
+            }
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+
+    <script>
+        // --- Orders Table Data
+        function formatNumber(number, format) {
+            const formatter = new Intl.NumberFormat('en-PH', {
+                style: 'currency',
+                currency: 'PHP',
+                minimumFractionDigits: 2
+            });
+
+            switch (format) {
+                case 'currency':
+                    return formatter.format(number);
+                case 'percent':
+                    return (number * 100).toFixed(2) + '%';
+                case 'decimal':
+                    return number.toFixed(2);
+                case 'thousands':
+                    return number.toLocaleString('en-US');
+                default:
+                    return number;
+            }
+        }
+
+        $(document).ready(function() {
+
+            var table = $('#ordersTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "./adminconfig/getall_orders.php",
+                    type: "POST",
+                    data: function(d) {
+                        d.min_date = $('#min_date').val() || null;
+                        d.max_date = $('#max_date').val() || null;
+                    }
+                },
+                columns: [{
+                        data: "order_id_no"
+                    },
+                    {
+                        data: "firstname",
+                        render: function(data, type, row) {
+                            return ucfirst(data) + " " + ucfirst(row.lastname);
+                        }
+                    },
+                    {
+                        data: "order_date"
+                    },
+                    {
+                        data: "total_amount",
+                        render: function(data, type, row) {
+                            return formatNumber(data, 'currency');
+                        }
+                    },
+                    {
+                        data: 'payment_img',
+                        render: function(data, type, row) {
+                            if (data) {
+                                return '<img id="image" src=".' + data + '" alt= " " class="img-thumbnail mx-3" style="width: 50px; height: 50px;" onclick="openImg(this)">';
+                            } else {
+                                return '<img id="image" src="../assets/payment/default.png" alt= " " class="img-thumbnail mx-3" style="width: 50px; height: 50px;" onclick="openImg(this)">';
+                            }
+                        }
+                    },
+                    {
+                        data: "payment_mode",
+                        render: function(data, type, row) {
+                            switch (data) {
+                                case 'cod':
+                                    return "Cash-On-Delivery";
+                                case 'gcash':
+                                    return "GCash";
+                                default:
+                                    return "Unknown";
+                            }
+                        }
+                    },
+
+                    {
+                        data: "status",
+                        render: function(data, type, row) {
+                            switch (parseInt(data)) {
+                                case 1:
+                                    return "Order Placed";
+                                case 2:
+                                    return "Order Confirmed";
+                                case 3:
+                                    return "<span class='text-warning fw-bold'>In Transit</span>";
+                                case 4:
+                                    return "<span class='text-success fw-bold'>Delivered</span>";
+                                case 5:
+                                    return "Invalid Order";
+                                case 6:
+                                    return "<span class='text-danger fw-bold'>Cancelled</span>";
+                                default:
+                                    return "Unknown";
+                            }
+                        }
+                    },
+                    {
+                        data: null,
+                        render: function(data, type, row) {
+                            return '<a href="view_order_details.php?order_id=' + row.order_id + '" class="btn btn-info">View Details</a>';
+                        }
+                    }
+                ],
+                error: function(xhr, error, code) {
+                    console.error('DataTables error:', error);
+                }
+            });
+
+            $('#min_date, #max_date').change(function() {
+                table.draw();
+            });
+        });
+    </script>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const error = urlParams.get('error');
+        const success = urlParams.get('success');
+        const invalid = urlParams.get('invalid');
+
+        if (error) {
+            alert('Error generating PDF. Please try again.');
+            cleanUrl();
+        } else if (success) {
+            alert('Generated report successfully. You can view it on the PDF tab.');
+            cleanUrl();
+        } else if (invalid) {
+            alert('No orders found for the selected date. Please try again.');
+            cleanUrl();
+        }
+
+        function cleanUrl() {
+            const url = new URL(window.location.href);
+            url.search = '';
+            window.history.replaceState({}, document.title, url);
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#productstable').DataTable();
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#pdfTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "./adminconfig/getall_pdfs.php",
+                    type: "POST"
+                },
+                columns: [{
+                        title: "Order ID",
+                        data: 'order_id',
+                        render: function(data, type, row) {
+                            return data ? data : '<span class="text-muted">No Order ID for Reports</span>';
+                        }
+                    },
+                    {
+                        title: "Type",
+                        data: 'type'
+                    },
+                    {
+                        title: "Created At",
+                        data: 'created_at'
+                    },
+                    {
+                        title: "Action",
+                        data: 'file_path',
+                        render: function(data, type, row) {
+                            if (row.type === 'Sales Report') {
+                                return '<a class="btn btn-info" href="../dailyreports/' + data + '" target="_blank">View</a>';
+                            } else {
+                                return '<a class="btn btn-info" href="../receipts/' + data + '" target="_blank">View</a>';
+                            }
+                        }
+                    }
+                ],
+                order: [],
+                search: {
+                    "caseInsensitive": true
+                }
+            });
+
+            // Checkbox filter logic
+            $('input[type="checkbox"]').change(function() {
+                var selectedTypes = $('input[type="checkbox"]:checked').map(function() {
+                    return this.value;
+                }).get();
+
+                $.ajax({
+                    url: './adminconfig/getall_pdfs.php',
+                    type: 'POST',
+                    data: {
+                        types: selectedTypes
+                    },
+                    success: function(data) {
+                        var table = $('#pdfTable').DataTable();
+                        table.clear();
+                        table.rows.add(data.data).draw();
+                    }
+                });
+            });
+
+        });
+    </script>
+
+    <script>
+        $(document).ready( function () {
+            $('#category_table').DataTable();
+        } );
+    </script>
+    
+    <!-- fragment url -->
+    <!-- <script>
         function showDivBasedOnFragment() {
             // Get the fragment identifier from the URL
             var fragment = window.location.hash.substring(1);
@@ -21,7 +283,7 @@
 
         // Call the function on page load
         showDivBasedOnFragment();
-    </script>
+    </script> -->
     <!-- show/hide navbar -->
     <script>
         window.addEventListener('DOMContentLoaded', event => {
@@ -43,7 +305,7 @@
         });
     </script>
     <!-- show/hide tab -->
-    <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Get all the navigation links
             var navLinks = document.querySelectorAll('.nav-link');
@@ -87,7 +349,7 @@
             var dashboardTabPane = document.getElementById('dashboard');
             dashboardTabPane.classList.add('show', 'active');
         });
-    </script>
+    </script> -->
     <!-- product crud -->
     <script>
         $(document).ready(function() {
@@ -1020,3 +1282,8 @@
         });
     </script>
     <!-- /Delivery Rider CRUD -->
+
+    
+    </body>
+
+</html>

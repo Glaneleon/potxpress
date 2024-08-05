@@ -226,6 +226,6 @@ if (isset($_POST['order_id']) && isset($_POST['orderStatus'])) {
     exit();
 } else {
     // If order_id or status is not set, redirect to the order page
-    header("Location: ../admin.php");
+    header("Location: ../orders.php");
     exit();
 }

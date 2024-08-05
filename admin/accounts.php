@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="accounts" role="tabpanel" aria-labelledby="accounts-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Accounts</h2>
 
     <?php
@@ -93,3 +95,5 @@
     </div>
 
 </div>
+
+<?php require_once "./adminconfig/adminscript.php"; ?>

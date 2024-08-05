@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h1>Orders</h1>
     <div class="row mb-4">
         <div class="col-md-10">
@@ -95,3 +97,5 @@
     </div>
     <!-- /generate report modal -->
 </div>
+
+<?php require_once "./adminconfig/adminscript.php"; ?>

@@ -1,4 +1,6 @@
-<div class="tab-pane fade" id="editproductlog" role="tabpanel" aria-labelledby="editproductlog-tab">
+<?php require_once "./adminconfig/adminhead.php"; ?>
+
+<div>
     <h2>Edit Product Logs</h2>
     <?php
         include('../config/config.php');
@@ -38,3 +40,4 @@
         </table>
     </div>
 </div>
+<?php require_once "./adminconfig/adminscript.php"; ?>

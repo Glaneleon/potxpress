@@ -216,7 +216,7 @@
         $jsonData = json_encode($data);
     } else {
         // Redirect to orders page
-        header("Location: ./admin.php#orders");
+        header("Location: ./orders.php");
         exit();
     }
     ?>
@@ -340,7 +340,7 @@
                     </div>
                 </div>
 
-                <a href="./admin.php#orders" class="btn btn-secondary">Go Back</a>
+                <a href="./orders.php" class="btn btn-secondary">Go Back</a>
             </div>
 
         <?php
