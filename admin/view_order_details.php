@@ -177,8 +177,12 @@
             $customer_details .= '<p class="mb-0"><strong>Payment Received:</strong> ₱ ' . $detail['payment_received'] . '</p>';
         }
 
-        if (($detail['status'] == '3' || $detail['status'] == '2') && $detail['payment_mode'] !== 'gcash') {
-            $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
+        if (($detail['status'] == '3' || $detail['status'] == '2')) {
+            if ($detail['payment_mode'] === 'gcash'){
+                $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate GCash Receipt</button></div></div></div>';
+            } else{
+                $customer_details .= '</div><div class="col-md-2"><button class="btn btn-primary generate-cod-receipt">Generate COD Receipt</button></div></div></div>';
+            }
         } elseif ($detail['status'] == '4' && !isset($detail['payment_received']) && $detail['payment_mode'] !== 'gcash') {
             $customer_details .= '</div><div class="col-md-2"><button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#paymentModal">Register Payment</button></div></div></div>';
         }
@@ -192,7 +196,9 @@
         echo $customer_details;
         echo $output;
 
+        $orderId = $detail['order_id'];
         $orderNo = $detail['order_id_no'];
+        $type = $detail['payment_mode'];
 
         $date = DateTime::createFromFormat('Y-m-d H:i:s', $detail['order_date']);
         $orderDate = $date->format('F d, Y');
@@ -578,6 +584,8 @@
             var orderDate = "<?php echo $orderDate; ?>";
             var jsonData = <?php echo $jsonData; ?>;
             var orderNo = "<?php echo $orderNo; ?>";
+            var orderId = "<?php echo $orderId; ?>";
+            var type = "<?php echo $type; ?>";
             var customerName = "<?php echo $customerName; ?>";
             $('.generate-cod-receipt').click(function() {
                 if (confirm("Are you sure you want to generate the COD receipt?")) {
@@ -592,6 +600,8 @@
                             jsonData: jsonData,
                             orderDate: orderDate,
                             orderNo: orderNo,
+                            orderId: orderId,
+                            type: type,
                             customerName: customerName
                         },
                         success: function(response) {

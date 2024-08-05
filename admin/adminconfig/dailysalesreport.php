@@ -168,17 +168,31 @@ $check = 0;
 
 // Save as PDF
 if (!empty($_POST['endDate'])) {
-    $filename = '../../dailyreports/' . $startDate . 'to' . $endDate . '-' . $formattedTime . '.pdf';
+    $filename = $startDate . 'to' . $endDate . '-' . $formattedTime . '.pdf';
 } else {
-    $filename = '../../dailyreports/' . $selectedDate . '-' . $formattedTime . '.pdf';
+    $filename = $selectedDate . '-' . $formattedTime . '.pdf';
 }
+$filepath = $filename;
 
-$output = $pdf->Output($filename, 'F');
+$output = $pdf->Output($filepath, 'F');
 
 if ($output === false) {
     header("Location: ../admin.php?error=pdf_generation_failed#orders");
     exit();
 } else {
+    
+    try {
+        $stmt = $conn->prepare("INSERT INTO pdfs (type, file_path) VALUES (?, ?)");
+        $stmt->bindParam(1, $type);
+        $stmt->bindParam(2, $filepath);
+    
+        $type = "Sales Report";
+    
+        $stmt->execute();
+    } catch(PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+
     header("Location: ../admin.php?success=pdf_generated#pdf");
     exit();
 }

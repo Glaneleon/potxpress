@@ -392,6 +392,71 @@ if (!isset($_SESSION['username']) || !isset($_SESSION['user_id']) || !isset($_SE
         });
     </script>
 
+    <script>
+        $(document).ready(function() {
+            $('#pdfTable').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "./adminconfig/getall_pdfs.php",
+                    type: "POST"
+                },
+                columns: [{
+                        title: "Order ID",
+                        data: 'order_id',
+                        render: function(data, type, row) {
+                            return data ? data : '<span class="text-muted">No Order ID for Reports</span>';
+                        }
+                    },
+                    {
+                        title: "Type",
+                        data: 'type'
+                    },
+                    {
+                        title: "Created At",
+                        data: 'created_at'
+                    },
+                    {
+                        title: "Action",
+                        data: 'file_path',
+                        render: function(data, type, row) {
+                            if (row.type === 'Sales Report') {
+                                return '<a class="btn btn-info" href="../dailyreports/' + data + '" target="_blank">View</a>';
+                            } else {
+                                return '<a class="btn btn-info" href="../receipts/' + data + '" target="_blank">View</a>';
+                            }
+                        }
+                    }
+                ],
+                order: [],
+                search: {
+                    "caseInsensitive": true
+                }
+            });
+
+            // Checkbox filter logic
+            $('input[type="checkbox"]').change(function() {
+                var selectedTypes = $('input[type="checkbox"]:checked').map(function() {
+                    return this.value;
+                }).get();
+
+                $.ajax({
+                    url: './adminconfig/getall_pdfs.php',
+                    type: 'POST',
+                    data: {
+                        types: selectedTypes
+                    },
+                    success: function(data) {
+                        var table = $('#pdfTable').DataTable();
+                        table.clear();
+                        table.rows.add(data.data).draw();
+                    }
+                });
+            });
+
+        });
+    </script>
+
     <!-- <script>
         $(document).ready( function () {
             $('#category_table').DataTable();
