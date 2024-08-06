@@ -231,25 +231,22 @@
                 }
             });
 
-            // Checkbox filter logic
-            $('input[type="checkbox"]').change(function() {
-                var selectedTypes = $('input[type="checkbox"]:checked').map(function() {
-                    return this.value;
-                }).get();
+            // binary search
+            $('input[id="orderIdSearch"]').change(function() {
+              var orderId = $(this).val();
 
-                $.ajax({
-                    url: './adminconfig/getall_pdfs.php',
-                    type: 'POST',
-                    data: {
-                        types: selectedTypes
-                    },
-                    success: function(data) {
-                        var table = $('#pdfTable').DataTable();
-                        table.clear();
-                        table.rows.add(data.data).draw();
-                    }
-                });
+              $.ajax({
+                url: './adminconfig/getall_pdfs.php',
+                type: 'POST',
+                data: {
+                  orderId: orderId
+                },
+                success: function(data) {
+                  alert("Record exist.")
+                }
+              });
             });
+
 
         });
     </script>
