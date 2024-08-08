@@ -16,8 +16,7 @@
         }
     ?>
 
-    <div class="table-responsive">
-        <table class="table table-bordered" id="customertable">
+        <table class="table table-bordered table-hover" id="customertable">
             <thead>
                 <tr>
                     <th>Customer ID</th>
@@ -37,7 +36,6 @@
                 <?php endwhile; ?>
             </tbody>
         </table>
-    </div>
 </div>
 
 <?php require_once "./adminconfig/adminscript.php"; ?>

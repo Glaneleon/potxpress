@@ -13,13 +13,11 @@
         }
     ?>
 
-    <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-hover" id="editproductlogs">
             <thead>
                 <tr>
                     <th>Log ID</th>
                     <th>Product ID</th>
-                    <th>Edit Query</th>
                     <th>Edited By</th>
                     <th>User IP Address</th>
                     <th>Date</th>
@@ -30,7 +28,6 @@
                     <tr>
                         <td><?php echo $order['log_id']; ?></td>
                         <td><?php echo $order['product_id']; ?></td>
-                        <td><?php echo $order['edit_description']; ?></td>
                         <td><?php echo $order['fname']; ?></td>
                         <td><?php echo $order['ip_address']; ?></td>
                         <td><?php echo $order['edited_at']; ?></td>
@@ -38,6 +35,5 @@
                 <?php endwhile; ?>
             </tbody>
         </table>
-    </div>
 </div>
 <?php require_once "./adminconfig/adminscript.php"; ?>

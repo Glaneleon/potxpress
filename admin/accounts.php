@@ -12,8 +12,7 @@
         }
     ?>
 
-    <div class="table-responsive">
-        <table class="table" id="accountstable">
+        <table class="table table-bordered table-hover" id="accountstable">
             <thead>
                 <tr>
                     <th>Username</th>
@@ -94,6 +93,5 @@
         </table>
     </div>
 
-</div>
 
 <?php require_once "./adminconfig/adminscript.php"; ?>

@@ -13,8 +13,7 @@
         }
     ?>
 
-    <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-hover" id="paymentsLogs">
             <thead>
                 <tr>
                     <th>Log ID</th>
@@ -38,7 +37,6 @@
                 <?php endwhile; ?>
             </tbody>
         </table>
-    </div>
 </div>
 
 <?php require_once "./adminconfig/adminscript.php"; ?>

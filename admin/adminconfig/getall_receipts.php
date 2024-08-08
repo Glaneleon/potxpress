@@ -23,9 +23,9 @@ if (!empty($order)) {
 }
 
 // Search logic (example using LIKE)
-$whereClause = " WHERE type = 'Sales Report'";
+$whereClause = " WHERE type LIKE '%Receipt%'";
 if (!empty($search)) {
-    $whereClause = " ' OR file_path LIKE '%$search%' OR order_id LIKE '%$search%'";
+    $whereClause = " OR order_id LIKE '%$search%'";
 }
 
 // Your SQL query with potential filtering, sorting, etc.
